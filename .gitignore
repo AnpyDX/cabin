@@ -1,0 +1,5 @@
+build
+.xmake
+.vscode
+vsxmake*
+DRAFT.md
