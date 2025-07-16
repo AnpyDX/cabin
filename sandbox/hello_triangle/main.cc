@@ -21,9 +21,7 @@ static std::vector<Vertex> vertices = {
     { { 0.0f, 0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f } }
 };
 
-static std::vector<unsigned int> indices = {
-    0, 1, 2
-};
+static std::vector<unsigned int> indices = { 0, 1, 2 };
 
 class HelloTriangle: public Sandbox {
 public:
@@ -31,7 +29,7 @@ public:
     : Sandbox("Hello Triangle", 800, 600) {
         m_shader = std::make_unique<core::Shader>(
             core::Shader::Builder()
-                        .setSourceFile("hello_triangle/main.shader")
+                        .fromFile("hello_triangle/main.shader")
                         .build()
         );
         m_vertexBuffer = std::make_unique<core::VertexBuffer>(
