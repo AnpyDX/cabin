@@ -13,11 +13,26 @@ namespace {
         size_t end = str.find_last_not_of(' ');
         return str.substr(begin, end - begin + 1);
     }
+
+    std::string getSourceView(const std::string& src) {
+        std::string result {};
+        std::stringstream lines;
+        lines << src;
+
+        std::string line;
+        size_t lineNumber = 1;
+        while (std::getline(lines, line)) {
+            result.append(std::format(" {} |{}\n", lineNumber, line));
+            lineNumber += 1;
+        }
+
+        return result;
+    }
 }
 
 namespace cabin::core {
 
-    Shader::Builder& Shader::Builder::setSourceFile(const std::string& path) {
+    Shader::Builder& Shader::Builder::fromFile(const std::string& path) {
         utils::Console::info(std::format("loading shader \"{}\"", path));
 
         std::ifstream sourceFile { path };
@@ -31,12 +46,12 @@ namespace cabin::core {
         return *this;
     }
 
-    Shader::Builder& Shader::Builder::setSourceString(std::string&& str) {
+    Shader::Builder& Shader::Builder::fromStr(std::string&& str) {
         source = std::stringstream(str);
         return *this;
     }
 
-    Shader::Builder& Shader::Builder::setSourceString(const std::string& str) {
+    Shader::Builder& Shader::Builder::fromStr(const std::string& str) {
         source = std::stringstream(str);
         return *this;
     }
@@ -60,18 +75,22 @@ namespace cabin::core {
                     version = trimed;
                     version.append("\n");
                 }
-                else if (trimed.starts_with("#!")) {
-                    if (trimed == "#![vertex]") {
+                else if (trimed.starts_with("#![") && trimed.ends_with("]")) {
+                    std::string blockName = trimStr(trimed.substr(3, trimed.size() - 4));
+                    if (blockName.size() == 0)
+                        throw "block declerated but no name provided";
+
+                    if (blockName == "vertex") {
                         if (vertex.size())
                             throw "vertex block re-decleration";
                         target = &vertex;
                     }
-                    else if (trimed == "#![geometory]") {
+                    else if (blockName == "geometory") {
                         if (geometory.size())
                             throw "geometory block re-decleration";
                         target = &geometory;
                     }
-                    else if (trimed == "#![fragment]") {
+                    else if (blockName == "fragment") {
                         if (fragment.size())
                             throw "fragment block re-decleration";
                         target = &fragment;
@@ -81,7 +100,7 @@ namespace cabin::core {
                     }
                 }
                 else {
-                    if (target) {
+                    if (target && !trimed.empty()) {
                         target->append(line);
                         target->append("\n");
                     }
@@ -90,7 +109,7 @@ namespace cabin::core {
         } catch (const char* errorInfo) {
             throw std::runtime_error(
                 std::format(
-                    "failed to parse shader at line {}: \n    \"{}\"\n  error: {}.", 
+                    "failed to parse shader, at line {}: \n    \"{}\"\n  error: {}.", 
                     lineNumber, line, errorInfo
                 )
             );
@@ -111,7 +130,7 @@ namespace cabin::core {
         }
         
         // 3. Create shader program object
-        auto checkCompileStatus = [&](GLuint id, const char* stage) {
+        auto checkCompileStatus = [&](GLuint id, const char* stage, const std::string& source) {
             int isSuccess;
             char statusLog[2048];
             
@@ -120,8 +139,8 @@ namespace cabin::core {
                 glGetShaderInfoLog(id, 2048, nullptr, statusLog);
                 throw std::runtime_error(
                     std::format(
-                        "failed to compile shader's {} block!\n{}",
-                        stage, statusLog
+                        "failed to compile shader's {} block!\n{}\n{}",
+                        stage, getSourceView(source), statusLog
                     )
                 );
             }
@@ -138,12 +157,12 @@ namespace cabin::core {
         vertexShader = glCreateShader(GL_VERTEX_SHADER);
         glShaderSource(vertexShader, 1, &vertexSrcPtr, nullptr);
         glCompileShader(vertexShader);
-        checkCompileStatus(vertexShader, "vertex");
+        checkCompileStatus(vertexShader, "vertex", vertexSrc);
 
         fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
         glShaderSource(fragmentShader, 1, &fragmentSrcPtr, nullptr);
         glCompileShader(fragmentShader);
-        checkCompileStatus(fragmentShader, "fragment");
+        checkCompileStatus(fragmentShader, "fragment", fragmentSrc);
 
         if (geometory.size()) {
             std::string geometorySrc = version + geometory;
@@ -152,7 +171,7 @@ namespace cabin::core {
             geometoryShader = glCreateShader(GL_GEOMETRY_SHADER);
             glShaderSource(geometoryShader, 1, &geometorySrcPtr, nullptr);
             glCompileShader(geometoryShader);
-            checkCompileStatus(geometoryShader, "geometory");
+            checkCompileStatus(geometoryShader, "geometory", geometorySrc);
         }
 
         id = glCreateProgram();
@@ -191,7 +210,10 @@ namespace cabin::core {
     }
 
     Shader::Shader(Shader&& right) noexcept {
-        this->id = right.id;
+        if (id.has_value()) {
+            glDeleteProgram(id.value());
+        }
+        id = right.id;
         right.id.reset();
     }
 
