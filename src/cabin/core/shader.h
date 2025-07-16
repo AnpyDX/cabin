@@ -19,21 +19,21 @@ namespace cabin::core {
              * 
              * @param path 
              */
-            Builder& setSourceFile(const std::string& path);
+            Builder& fromFile(const std::string& path);
 
             /**
              * @brief Set shader source string (move; string's ownership taken).
              * 
              * @param str Source code string.
              */
-            Builder& setSourceString(std::string&& str);
+            Builder& fromStr(std::string&& source);
 
             /**
              * @brief Set shader source string (copy).
              * 
              * @param str Source code string.
              */
-            Builder& setSourceString(const std::string& str);
+            Builder& fromStr(const std::string& source);
 
             Shader build();
 
