@@ -46,17 +46,30 @@ namespace cabin {
         /**
          * @brief Custom function in render loop.
          */
-        virtual void inLoop() = 0;
+        virtual void renderFrame() = 0;
+
+        /**
+         * @brief 
+         */
+        virtual void interfaceFrame() {};
+
+        std::tuple<int, int> getWindowSize();
 
         /**
          * @brief Set whether window is resizable.
          * 
          * @param enable 
          */
-        void setResizable(bool enable);
+        void setWindowResizable(bool enable);
+
+        /**
+         * @brief Enable ImGui.
+         */
+        void enableImGui();
 
     public:
         GLFWwindow* window { nullptr };
+        bool hasImGuiContext { false };
     };
 
 }
