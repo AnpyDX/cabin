@@ -41,6 +41,10 @@ namespace cabin::core {
     : VBO(VBO), VAO(VAO) {}
 
     VertexBuffer::VertexBuffer(VertexBuffer&& right) noexcept {
+        if (VAO.has_value() && VBO.has_value()) {
+            glDeleteVertexArrays(1, &VAO.value());
+            glDeleteBuffers(1, &VBO.value());
+        }
         VAO = right.VAO;
         VBO = right.VBO;
         right.VAO.reset();

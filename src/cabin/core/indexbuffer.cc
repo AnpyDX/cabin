@@ -13,6 +13,9 @@ namespace cabin::core {
     : id(id), count(count), storageType(storageType) {}
 
     IndexBuffer::IndexBuffer(IndexBuffer&& right) noexcept {
+        if (id.has_value()) {
+            glDeleteBuffers(1, &id.value());
+        }
         id = right.id;
         count = right.count;
         storageType = right.storageType;
