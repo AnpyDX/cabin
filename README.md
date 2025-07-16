@@ -1,12 +1,18 @@
 # Cabin
 
-**Cabin** is a grahpics *sandbox* framework based on OpenGL.
+**Cabin** is a grahpics sandbox framework based on OpenGL.
 
 ## Showcase
 
-- `sandbox/hello_triangle`
+![hello_triangle](showcase/hello_triangle.png)
 
-![](showcase/hello_triangle.png)
+For more samples, please check [sandbox](sandbox).
+
+## Requirements
+
+- Windows or Linux
+- Compiler supports `C++20`
+- xmake
 
 ## Build & Run
 
@@ -17,7 +23,7 @@ xmake config -m release
 xmake build
 ```
 
-2. Run sandbox by specifying its name (e.g. `hello_triangle`):
+2. Run sandbox by specifying its name (check [details](sandbox)):
 
 ```bash
 xmake run <target>
@@ -30,13 +36,15 @@ xmake run <target>
 
 ## Thirdparty
 
-- **GLFW**: https://github.com/glfw/glfw
-- **GLAD**: https://github.com/Dav1dde/glad
-- **GLM**: https://github.com/g-truc/glm
+- **GLFW**: <https://github.com/glfw/glfw>
+- **GLAD**: <https://github.com/Dav1dde/glad>
+- **GLM**: <https://github.com/g-truc/glm>
+- **stb**: <https://github.com/nothings/stb>
+- **ImGui**: <https://github.com/ocornut/imgui>
 
 ## References
 
-- **LearnOpenGL-CN**: https://learnopengl-cn.github.io
+- **LearnOpenGL-CN**: <https://learnopengl-cn.github.io>
 
 ## License
 
