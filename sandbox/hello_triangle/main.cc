@@ -46,7 +46,7 @@ public:
         );
     }
 
-    void inLoop() override {
+    void renderFrame() override {
         processInput();
 
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
