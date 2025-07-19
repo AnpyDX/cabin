@@ -3,7 +3,7 @@
 #include <format>
 #include <fstream>
 #include <stdexcept>
-#include "console.h"
+#include "../utils/console.h"
 
 namespace {
     std::string trimStr(const std::string& str) {
