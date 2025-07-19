@@ -16,7 +16,7 @@ For more samples, please check [sandbox](sandbox).
 
 ## Build & Run
 
-1. Build framework and sandbox:
+1. Build from source:
 
 ```bash
 xmake config -m release
@@ -36,11 +36,17 @@ xmake run <target>
 
 ## Thirdparty
 
+### Libraries
+
 - **GLFW**: <https://github.com/glfw/glfw>
 - **GLAD**: <https://github.com/Dav1dde/glad>
 - **GLM**: <https://github.com/g-truc/glm>
 - **stb**: <https://github.com/nothings/stb>
 - **ImGui**: <https://github.com/ocornut/imgui>
+
+### Assets
+
+- **Source Sans**: <https://github.com/adobe-fonts/source-sans>
 
 ## References
 
