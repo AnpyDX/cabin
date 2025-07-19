@@ -1,9 +1,18 @@
+/**
+ * cabin-framework (https://github.com/anpydx/cabin)
+ *
+ * Copyright (c) 2025 anpyd, All Rights Reserved.
+ * Licensed under the MIT License.
+ */
+
 #pragma once
 #include <vector>
 #include <optional>
+
 #include <glad/glad.h>
 
 namespace cabin::core {
+    
     class VertexBuffer {
     public:
         class Builder {
@@ -21,21 +30,19 @@ namespace cabin::core {
             Builder(Builder&&) = delete;
             Builder(const Builder&) = delete;
 
-            /**
-             * @brief Allocate vertex buffer and set buffer data.
+            /** Allocate vertex buffer and set buffer data.
              * 
-             * @param data Pointer to vertices data.
-             * @param size Size of vertices data (in byte).
+             * @param data  Pointer to vertices data.
+             * @param size  Size of vertices data (in byte).
              * @param usage Buffer usage.
              */
             Builder& setBuffer(const void* data, GLsizeiptr size, GLenum usage);
 
-            /**
-             * @brief Add vertex array attribute.
+            /** Add a vertex array attribute.
              * 
-             * @tparam T Attribute component type.
-             * @param index Attribute location index.
-             * @param count Attribute component count.
+             * @tparam T         Attribute component type.
+             * @param index      Attribute location index.
+             * @param count      Attribute component count.
              * @param normalized Whether normalize attribute components.
              */
             template <typename T>
@@ -74,9 +81,7 @@ namespace cabin::core {
 
         ~VertexBuffer();
 
-        /**
-         * @brief Bind to the vertex array. (wrapper of `glBindVertexArray`)
-         */
+        //! Bind to this vertex buffer. (wrapper of `glBindVertexArray`)
         void bind() const;
 
     public:

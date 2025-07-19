@@ -1,8 +1,16 @@
+/**
+ * cabin-framework (https://github.com/anpydx/cabin)
+ *
+ * Copyright (c) 2025 anpyd, All Rights Reserved.
+ * Licensed under the MIT License.
+ */
+
 #pragma once
 #include <optional>
 #include <glad/glad.h>
 
 namespace cabin::core {
+
     class RenderBuffer {
     public:
         class Builder {
@@ -11,7 +19,14 @@ namespace cabin::core {
             Builder(Builder&&) = delete;
             Builder(const Builder&) = delete;
 
+            //! Set the renderbuffer format.
             Builder& setFormat(GLenum format);
+
+            /** Set the size of renderbuffer.
+             * 
+             * @note The size of renderbuffer is usually 
+             *       the same as that of the viewport.
+             */
             Builder& setSize(GLsizei width, GLsizei height);
 
             RenderBuffer build();
