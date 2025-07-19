@@ -6,5 +6,6 @@ target("cabin")
     add_includedirs(".", { public = true })
     add_files(
         "cabin/*.cc",
-        "cabin/core/*.cc"
+        "cabin/core/*.cc",
+        "cabin/utils/*.cc"
     )
