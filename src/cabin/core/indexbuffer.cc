@@ -2,11 +2,11 @@
 
 namespace cabin::core {
     IndexBuffer::Builder::Builder() {
-        glGenBuffers(1, &EBO);
+        glGenBuffers(1, &id);
     }
 
     IndexBuffer IndexBuffer::Builder::build() {
-        return IndexBuffer { EBO, count, storageType };
+        return IndexBuffer { id, count, storageType };
     }
 
     IndexBuffer::IndexBuffer(GLuint id, GLsizei count, GLenum storageType)
