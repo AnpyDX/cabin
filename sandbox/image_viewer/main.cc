@@ -1,3 +1,13 @@
+/**
+ * cabin-framework (https://github.com/anpydx/cabin)
+ *
+ * Copyright (c) 2025 anpyd, All Rights Reserved.
+ * Licensed under the MIT License.
+ *
+ * `Image Viewer` is a image preview application,
+ *  showing a simple usage of `core::Framebuffer`.
+ */
+
 #include <memory>
 #include <vector>
 
@@ -58,7 +68,7 @@ public:
                         .build()
         );
         m_imageTexture = std::make_unique<core::Texture>(
-            core::Texture::Builder<GL_TEXTURE_2D>()
+            core::Texture::Builder<core::Texture::Tex2D>()
                         .fromFile("image_viewer/awesomeface.png")
                         .setWrap(GL_REPEAT, GL_REPEAT)
                         .setFilter(GL_LINEAR, GL_LINEAR)
@@ -111,7 +121,7 @@ public:
             else {
                 try {
                     auto inputImage = std::make_unique<core::Texture>(
-                        core::Texture::Builder<GL_TEXTURE_2D>()
+                        core::Texture::Builder<core::Texture::Tex2D>()
                                     .fromFile(paths[0])
                                     .setWrap(GL_REPEAT, GL_REPEAT)
                                     .setFilter(GL_LINEAR, GL_LINEAR)
@@ -149,7 +159,7 @@ public:
         texHeight = m_imageTexture->height / scaleFactor;
 
         m_pixelateTexture = std::make_unique<core::Texture>(
-            core::Texture::Builder<GL_TEXTURE_2D>()
+            core::Texture::Builder<cabin::core::Texture::Tex2D>()
                         .fromBuffer(nullptr, texWidth, texHeight, GL_RGBA, GL_RGBA)
                         .setFilter(GL_NEAREST, GL_NEAREST)
                         .build()
@@ -196,10 +206,10 @@ public:
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        auto [w, h] = getWindowSize();
+        auto [width, height] = getWindowSize();
         float halfW, halfH;
-        halfW = w / 2.0f;
-        halfH = h / 2.0f;
+        halfW = width / 2.0f;
+        halfH = height / 2.0f;
 
         glm::mat4 model { 1.0f };
         model = glm::translate(model, glm::vec3 { m_imageCurrentPosition, 0.0f });
@@ -257,9 +267,10 @@ public:
                 }
             }
 
-            ImGui::SeparatorText("Hints");
+            ImGui::SeparatorText("Helps");
             ImGui::Text("- Press \"M\" to hide menu.");
             ImGui::Text("- Press \"C\" to reset image.");
+            ImGui::Text("- Drag file into window to load.");
 
             if (ImGui::IsMousePosValid())
                 ImGui::Text("Cursor Pos: (%.1f, %.1f)", io.MousePos.x, io.MousePos.y);
