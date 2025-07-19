@@ -1,3 +1,10 @@
+/**
+ * cabin-framework (https://github.com/anpydx/cabin)
+ *
+ * Copyright (c) 2025 anpyd, All Rights Reserved.
+ * Licensed under the MIT License.
+ */
+
 #pragma once
 #include <string>
 #include <sstream>
@@ -6,6 +13,7 @@
 #include <glad/glad.h>
 
 namespace cabin::core {
+
     class Shader {
     public:
         class Builder {
@@ -14,24 +22,21 @@ namespace cabin::core {
             Builder(Builder&&) = delete;
             Builder(const Builder&) = delete;
 
-            /**
-             * @brief Set shader source file path.
+            /** Create the shader from source file.
              * 
-             * @param path 
+             * @param path Path of shader source file.
              */
             Builder& fromFile(const std::string& path);
 
-            /**
-             * @brief Set shader source string (move; string's ownership taken).
+            /** Create the shader from source string.
              * 
-             * @param str Source code string.
+             * @param str Source code string (moved).
              */
             Builder& fromStr(std::string&& source);
 
-            /**
-             * @brief Set shader source string (copy).
+            /** Create the shader from source string.
              * 
-             * @param str Source code string.
+             * @param str Source code string (copied).
              */
             Builder& fromStr(const std::string& source);
 
@@ -50,9 +55,7 @@ namespace cabin::core {
 
         ~Shader();
 
-        /**
-         * @brief Bind to the shader program. (wrapper of `glBindShaderProgram`)
-         */
+        //! Bind to this shader program. (wrapper of `glBindShaderProgram`)
         void bind() const;
 
         void setInt(const std::string& name, int value) const;
