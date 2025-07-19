@@ -1,3 +1,10 @@
+/**
+ * cabin-framework (https://github.com/anpydx/cabin)
+ *
+ * Copyright (c) 2025 anpyd, All Rights Reserved.
+ * Licensed under the MIT License.
+ */
+
 #pragma once
 #include <format>
 #include <iostream>
