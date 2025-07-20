@@ -11,8 +11,9 @@ For more samples, please check [sandbox](sandbox).
 ## Requirements
 
 - Windows or Linux
-- Compiler supports `C++20`
-- xmake
+- GPU with `OpenGL 4.6` support.
+- Compiler with `C++20` supports.
+- [xmake](https://github.com/xmake-io/xmake)
 
 ## Build & Run
 
