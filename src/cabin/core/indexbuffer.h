@@ -36,9 +36,11 @@ namespace cabin::core {
                 glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(T) * count, static_cast<void*>(data), usage);
 
                 if constexpr (std::is_same_v<T, unsigned int>)
-                    storageType = GL_UNSIGNED_INT;
+                    componentType = GL_UNSIGNED_INT;
                 else
-                    storageType = GL_INT;
+                    componentType = GL_INT;
+
+                this->count = count;
 
                 return *this;
             }
@@ -46,14 +48,18 @@ namespace cabin::core {
             IndexBuffer build();
 
         private:
-            GLuint id;
-            GLsizei count;
-            GLenum storageType;
+            GLuint id {};
+            GLsizei count {};
+            GLenum componentType {};
         };
 
     public:
-        IndexBuffer(GLuint id, GLsizei count, GLenum storageType);
+        IndexBuffer() = default;
+        IndexBuffer(GLuint id, GLsizei count, GLenum componentType);
+
         IndexBuffer(IndexBuffer&& right) noexcept;
+        IndexBuffer& operator=(IndexBuffer&& right) noexcept;
+
         IndexBuffer(const IndexBuffer&) = delete;
         IndexBuffer& operator=(const IndexBuffer&) = delete;
 
@@ -65,6 +71,6 @@ namespace cabin::core {
     public:
         std::optional<GLuint> id;
         GLsizei count;
-        GLenum storageType;
+        GLenum componentType;
     };
 }

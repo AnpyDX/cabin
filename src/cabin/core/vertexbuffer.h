@@ -74,8 +74,12 @@ namespace cabin::core {
         };
 
     public:
+        VertexBuffer() = default;
         VertexBuffer(GLuint VBO, GLuint VAO);
+
         VertexBuffer(VertexBuffer&& right) noexcept;
+        VertexBuffer& operator=(VertexBuffer&& right) noexcept;
+
         VertexBuffer(const VertexBuffer&) = delete;
         VertexBuffer& operator=(const VertexBuffer&) = delete;
 

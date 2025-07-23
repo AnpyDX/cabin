@@ -1,5 +1,5 @@
+#define STB_IMAGE_IMPLEMENTATION
 #include "texture.h"
-
 
 namespace cabin::core {
     Texture::Texture(GLuint id, GLenum type, GLenum format, GLsizei width, GLsizei height, GLsizei depth)
@@ -9,12 +9,29 @@ namespace cabin::core {
         if (id.has_value()) {
             glDeleteTextures(1, &id.value());
         }
+
+        id = right.id;
+        type = right.type;
+        width = right.width;
+        height = right.height;
+        depth = right.depth;
+
+        right.id.reset();
+    }
+
+    Texture& Texture::operator=(Texture&& right) noexcept {
+        if (id.has_value()) {
+            glDeleteTextures(1, &id.value());
+        }
+
         id = right.id;
         type = right.type;
         width = right.width;
         height = right.height;
         depth = right.depth;
         right.id.reset();
+        
+        return *this;
     }
 
     Texture::~Texture() {

@@ -45,10 +45,25 @@ namespace cabin::core {
             glDeleteVertexArrays(1, &VAO.value());
             glDeleteBuffers(1, &VBO.value());
         }
+        
         VAO = right.VAO;
         VBO = right.VBO;
         right.VAO.reset();
         right.VBO.reset();
+    }
+
+    VertexBuffer& VertexBuffer::operator=(VertexBuffer&& right) noexcept {
+        if (VAO.has_value() && VBO.has_value()) {
+            glDeleteVertexArrays(1, &VAO.value());
+            glDeleteBuffers(1, &VBO.value());
+        }
+
+        VAO = right.VAO;
+        VBO = right.VBO;
+        right.VAO.reset();
+        right.VBO.reset();
+
+        return *this;
     }
 
     VertexBuffer::~VertexBuffer() {

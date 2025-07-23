@@ -188,14 +188,17 @@ namespace cabin::core {
             }
 
         private:
-            GLuint id;
-            GLenum format;
-            GLsizei width, height, depth { 0 };
+            GLuint id {}; GLenum format {};
+            GLsizei width {0}, height {0}, depth {0};
         };
 
     public:
+        Texture() = default;
         Texture(GLuint id, GLenum type, GLenum format, GLsizei width, GLsizei height, GLsizei depth);
+
         Texture(Texture&& right) noexcept;
+        Texture& operator=(Texture&&) noexcept;
+
         Texture(const Texture&) = delete;
         Texture& operator=(const Texture&) = delete;
 

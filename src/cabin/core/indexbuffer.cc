@@ -6,20 +6,34 @@ namespace cabin::core {
     }
 
     IndexBuffer IndexBuffer::Builder::build() {
-        return IndexBuffer { id, count, storageType };
+        return IndexBuffer { id, count, componentType };
     }
 
-    IndexBuffer::IndexBuffer(GLuint id, GLsizei count, GLenum storageType)
-    : id(id), count(count), storageType(storageType) {}
+    IndexBuffer::IndexBuffer(GLuint id, GLsizei count, GLenum componentType)
+    : id(id), count(count), componentType(componentType) {}
 
     IndexBuffer::IndexBuffer(IndexBuffer&& right) noexcept {
         if (id.has_value()) {
             glDeleteBuffers(1, &id.value());
         }
+
         id = right.id;
         count = right.count;
-        storageType = right.storageType;
+        componentType = right.componentType;
         right.id.reset();
+    }
+
+    IndexBuffer& IndexBuffer::operator=(IndexBuffer&& right) noexcept {
+        if (id.has_value()) {
+            glDeleteBuffers(1, &id.value());
+        }
+
+        id = right.id;
+        count = right.count;
+        componentType = right.componentType;
+        right.id.reset();
+        
+        return *this;
     }
 
     IndexBuffer::~IndexBuffer() {
