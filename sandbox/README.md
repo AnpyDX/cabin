@@ -14,7 +14,7 @@ xmake run hello_triangle
 
 ## Image Viewer
 A useful image preview tool, providing a preview of
-pixelated image. You can learn a basic usage of
+pixelated image. You can learn the basic usage of
 `core::FrameBuffer`.
 
 ```bash
