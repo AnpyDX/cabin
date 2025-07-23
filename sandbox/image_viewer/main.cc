@@ -175,7 +175,7 @@ public:
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glDrawElements(GL_TRIANGLES, indices.size(), m_indexBuffer->storageType, nullptr);
+        glDrawElements(GL_TRIANGLES, indices.size(), m_indexBuffer->componentType, nullptr);
 
         auto [width, height] = getWindowSize();
         glViewport(0, 0, width, height);
@@ -225,7 +225,7 @@ public:
         else
             m_imageTexture->active(0);
 
-        glDrawElements(GL_TRIANGLES, indices.size(), m_indexBuffer->storageType, nullptr);
+        glDrawElements(GL_TRIANGLES, indices.size(), m_indexBuffer->componentType, nullptr);
     }
 
     void interfaceFrame() override {
