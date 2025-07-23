@@ -97,6 +97,14 @@ public:
         glClear(GL_COLOR_BUFFER_BIT);
 
         m_shader->bind();
+
+        /* >>>>>>>>>>>>>>>> CAUTION <<<<<<<<<<<<<<<<:
+         * IndexBuffer MUST Be Bound After vertexBuffer!
+         *
+         *    Or you will get awful render result :(
+         *   (as then indexbuffer will bind to the 
+         *   vertexbuffer in last loop!)
+        */
         m_vertexBuffer->bind();
         m_indexBuffer->bind();
 
