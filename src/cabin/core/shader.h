@@ -28,28 +28,18 @@ namespace cabin::core {
              */
             Builder& fromFile(const std::string& path);
 
-            /** Create the shader from source string.
-             * 
-             * @param str Source code string (moved).
-             */
-            Builder& fromStr(std::string&& source);
-
-            /** Create the shader from source string.
-             * 
-             * @param str Source code string (copied).
-             */
-            Builder& fromStr(const std::string& source);
-
             Shader build();
 
         private:
             GLuint id;
-            std::stringstream source {};
+            std::string m_filePath {};
         };
 
     public:
+        Shader() = default;
         Shader(GLuint id);
-        Shader(Shader&&) noexcept;
+        Shader(Shader&& right) noexcept;
+        Shader& operator=(Shader&& right) noexcept;
         Shader(const Shader&) = delete;
         Shader& operator=(const Shader&) = delete;
 
