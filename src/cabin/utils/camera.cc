@@ -77,7 +77,7 @@ namespace cabin::utils {
             glm::mat4 horizontalRotate { 1.0f };
             horizontalRotate = glm::rotate(horizontalRotate, glm::radians(-cursorOffset.x), m_upDirectionBase);
             m_frontDirection = horizontalRotate * glm::vec4(m_frontDirectionBase, 0.0);
-            m_leftDirection = glm::normalize(glm::cross(m_upDirectionBase, m_frontDirection));
+            m_leftDirection = glm::normalize(glm::cross({ 0.0, 1.0, 0.0 }, m_frontDirection));
 
             glm::mat4 verticalRotate { 1.0f };
             verticalRotate = glm::rotate(verticalRotate, glm::radians(cursorOffset.y), m_leftDirection);
