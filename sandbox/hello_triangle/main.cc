@@ -26,7 +26,6 @@
 #include "cabin/utils/camera.h"
 #include "cabin/core/shader.h"
 #include "cabin/core/vertexbuffer.h"
-#include "cabin/core/indexbuffer.h"
 using namespace cabin;
 
 
@@ -58,11 +57,6 @@ public:
                                 .addAttribute<float>(0, 3)
                                 .addAttribute<float>(1, 3)
                                 .build()
-        );
-        m_indexBuffer = std::make_unique<core::IndexBuffer>(
-            core::IndexBuffer::Builder()
-                            .setBuffer(indices.data(), indices.size(), GL_STATIC_DRAW)
-                            .build()
         );
 
         // Enable and initialize ImGui.
@@ -97,16 +91,7 @@ public:
         glClear(GL_COLOR_BUFFER_BIT);
 
         m_shader->bind();
-
-        /* >>>>>>>>>>>>>>>> CAUTION <<<<<<<<<<<<<<<<:
-         * IndexBuffer MUST Be Bound After vertexBuffer!
-         *
-         *    Or you will get awful render result :(
-         *   (as then indexbuffer will bind to the 
-         *   vertexbuffer in last loop!)
-        */
         m_vertexBuffer->bind();
-        m_indexBuffer->bind();
 
         glm::mat4 model { 1.0f };
         model = glm::translate(model, glm::vec3(0.0, 0.0, -1.0));
@@ -124,7 +109,7 @@ public:
         m_shader->setMat4("view", view);
         m_shader->setMat4("projection", projection);
 
-        glDrawElements(GL_TRIANGLES, indices.size(), m_indexBuffer->componentType, nullptr);
+        glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, static_cast<void*>(indices.data()));
     }
 
     void interfaceFrame() override {
@@ -155,7 +140,6 @@ private:
     utils::Camera m_camera { { 0.0f, 0.0f, 0.0f }, { 0.0, 0.0, -1.0 }, { 0.0, 1.0, 0.0 } };
     std::unique_ptr<core::Shader> m_shader;
     std::unique_ptr<core::VertexBuffer> m_vertexBuffer;
-    std::unique_ptr<core::IndexBuffer> m_indexBuffer;
 };
 
 

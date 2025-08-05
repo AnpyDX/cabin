@@ -22,7 +22,6 @@
 #include "cabin/core/texture.h"
 #include "cabin/core/framebuffer.h"
 #include "cabin/core/vertexbuffer.h"
-#include "cabin/core/indexbuffer.h"
 using namespace cabin;
 
 struct Vertex {
@@ -52,11 +51,6 @@ public:
                             .addAttribute<float>(1, 2)
                             .build()
         );
-        m_indexBuffer = std::make_unique<core::IndexBuffer>(
-            core::IndexBuffer::Builder()
-                            .setBuffer(indices.data(), indices.size(), GL_STATIC_DRAW)
-                            .build()
-        );
         m_imageShader = std::make_unique<core::Shader>(
             core::Shader::Builder()
                         .fromFile("image_viewer/image.shader")
@@ -68,8 +62,8 @@ public:
                         .build()
         );
         m_imageTexture = std::make_unique<core::Texture>(
-            core::Texture::Builder<core::Texture::Tex2D>()
-                        .fromFile("image_viewer/awesomeface.png")
+            core::Texture::Builder()
+                        .fromFile2D("image_viewer/awesomeface.png")
                         .setWrap(GL_REPEAT, GL_REPEAT)
                         .setFilter(GL_LINEAR, GL_LINEAR)
                         .genMipmap()
@@ -121,8 +115,8 @@ public:
             else {
                 try {
                     auto inputImage = std::make_unique<core::Texture>(
-                        core::Texture::Builder<core::Texture::Tex2D>()
-                                    .fromFile(paths[0])
+                        core::Texture::Builder()
+                                    .fromFile2D(paths[0])
                                     .setWrap(GL_REPEAT, GL_REPEAT)
                                     .setFilter(GL_LINEAR, GL_LINEAR)
                                     .genMipmap()
@@ -146,7 +140,6 @@ public:
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         m_vertexBuffer->bind();
-        m_indexBuffer->bind();
 
         resetImageParameters();
         genPixelizedTexture();
@@ -159,8 +152,8 @@ public:
         texHeight = m_imageTexture->height / scaleFactor;
 
         m_pixelateTexture = std::make_unique<core::Texture>(
-            core::Texture::Builder<cabin::core::Texture::Tex2D>()
-                        .fromBuffer(nullptr, texWidth, texHeight, GL_RGBA, GL_RGBA)
+            core::Texture::Builder()
+                        .asEmpty2D(texWidth, texHeight, GL_RGBA16F)
                         .setFilter(GL_NEAREST, GL_NEAREST)
                         .build()
         );
@@ -175,7 +168,8 @@ public:
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glDrawElements(GL_TRIANGLES, indices.size(), m_indexBuffer->componentType, nullptr);
+        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), 
+                        GL_UNSIGNED_INT, static_cast<void*>(indices.data()));
 
         auto [width, height] = getWindowSize();
         glViewport(0, 0, width, height);
@@ -225,7 +219,8 @@ public:
         else
             m_imageTexture->active(0);
 
-        glDrawElements(GL_TRIANGLES, indices.size(), m_indexBuffer->componentType, nullptr);
+        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), 
+                        GL_UNSIGNED_INT, static_cast<void*>(indices.data()));
     }
 
     void interfaceFrame() override {
@@ -331,7 +326,6 @@ private:
     
 private:
     std::unique_ptr<core::VertexBuffer> m_vertexBuffer;
-    std::unique_ptr<core::IndexBuffer> m_indexBuffer;
     std::unique_ptr<core::Shader> m_imageShader;
     std::unique_ptr<core::Shader> m_pixelateShader;
     std::unique_ptr<core::FrameBuffer> m_subFramebuffer;
