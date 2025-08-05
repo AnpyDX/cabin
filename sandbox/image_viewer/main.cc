@@ -271,10 +271,6 @@ public:
                 ImGui::Text("Cursor Pos: (%.1f, %.1f)", io.MousePos.x, io.MousePos.y);
             else
                 ImGui::Text("Cursor Pos: <invalid>");
-
-            ImGui::Separator();
-            ImGui::Text("Project:"); ImGui::SameLine();
-            ImGui::TextLinkOpenURL("GitHub", "https://github.com/anpydx/cabin");
         }
         ImGui::End();
 
