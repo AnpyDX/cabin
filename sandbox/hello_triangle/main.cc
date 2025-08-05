@@ -109,7 +109,8 @@ public:
         m_shader->setMat4("view", view);
         m_shader->setMat4("projection", projection);
 
-        glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, static_cast<void*>(indices.data()));
+        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), 
+                        GL_UNSIGNED_INT, static_cast<void*>(indices.data()));
     }
 
     void interfaceFrame() override {
