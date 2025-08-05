@@ -4,9 +4,31 @@
 
 ## Showcase
 
-![hello_triangle](showcase/hello_triangle.png)
+![hello_pbr](showcase/hello_pbr_1.png)
 
-For more samples, please check [sandbox](sandbox).
+For more samples, please check sandbox [page](sandbox).
+
+## Features
+
+- OpenGL wrappers with Builder Pattern.
+
+```cpp
+using namespace cabin;
+
+struct Vertex {
+    glm::vec3 position;
+    glm::vec2 texCoord;
+};
+std::vector<Vertex> vertices { ... };
+
+auto vertexBuffer = core::VertexBuffer::Builder()
+                            .setBuffer(vertices.data(), vertices.size() * sizeof(Vertex), GL_STATIC_DRAW)
+                            .addAttribute<float>(0, 3)
+                            .addAttribute<float>(1, 2)
+                            .build();
+```
+
+- Utilities objects (e.g. FPS-style Camera).
 
 ## Requirements
 
@@ -24,7 +46,7 @@ xmake config -m release
 xmake build
 ```
 
-2. Run sandbox by specifying its name (check [details](sandbox)):
+2. Run sandbox by specifying its name (check [sandbox-list](sandbox)):
 
 ```bash
 xmake run <target>
@@ -44,10 +66,13 @@ xmake run <target>
 - **GLM**: <https://github.com/g-truc/glm>
 - **stb**: <https://github.com/nothings/stb>
 - **ImGui**: <https://github.com/ocornut/imgui>
+- **tinygltf**: <https://github.com/syoyo/tinygltf>
 
 ### Assets
 
+- **Poly Haven**: <https://polyhaven.com>
 - **Source Sans**: <https://github.com/adobe-fonts/source-sans>
+- **glTF-Assets**: <https://github.com/KhronosGroup/glTF-Sample-Assets>
 
 ## References
 
