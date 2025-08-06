@@ -430,7 +430,7 @@ public:
                 ImGui::ColorEdit3("BaseColor##1", &mtBaseColor[0]);
                 ImGui::InputFloat("Metallic##1", &mtORM[2], 0.1f);
                 ImGui::InputFloat("Roughness##1", &mtORM[1], 0.1f);
-                ImGui::InputFloat("occlusion##1", &mtORM[0], 0.1f);
+                ImGui::InputFloat("Occlusion##1", &mtORM[0], 0.1f);
 
                 mtORM = glm::clamp(mtORM, glm::vec3(0.0f, 0.01f, 0.0f), glm::vec3(1.0f));
             }
