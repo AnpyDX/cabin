@@ -15,7 +15,7 @@ For more samples, please check sandbox [page](sandbox).
 ```cpp
 using namespace cabin;
 
-struct Vertex {
+struct alignas(4) Vertex {
     glm::vec3 position;
     glm::vec2 texCoord;
 };
