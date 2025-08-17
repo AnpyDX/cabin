@@ -2,7 +2,7 @@
 
 The following is the list of sandbox-app examples.
 
-Check [manual](MANUAL) to learn how to create your own sandbox-app.
+Check [manual](MANUAL.md) to learn how to create your own sandbox-app.
 
 ## Hello Triangle
 
