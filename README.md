@@ -6,7 +6,7 @@
 
 ![hello_pbr](showcase/hello_pbr_1.png)
 
-For more samples, please check sandbox [page](sandbox).
+For the manual and more samples, please check sandbox [page](sandbox).
 
 ## Features
 
@@ -28,14 +28,14 @@ auto vertexBuffer = core::VertexBuffer::Builder()
                             .build();
 ```
 
-- Utilities objects (e.g. FPS-style Camera).
+- Utilities objects (e.g. FPS-style Camera and glTF-model Loader).
 
 ## Requirements
 
 - Windows or Linux
-- GPU with `OpenGL 4.6` support.
-- Compiler with `C++20` supports.
-- [xmake](https://github.com/xmake-io/xmake)
+- GPU with `OpenGL 4.6` support
+- Compiler with `C++20` support
+- Latest [xmake](https://github.com/xmake-io/xmake)
 
 ## Build & Run
 
@@ -55,7 +55,7 @@ xmake run <target>
 ## Structure
 
 - `src`: Source code of cabin framework.
-- `sandbox`: Sandbox collections.
+- `sandbox`: Sample sandbox-apps.
 
 ## Thirdparty
 
@@ -76,6 +76,7 @@ xmake run <target>
 
 ## References
 
+- **LearnOpenGL**: <https://learnopengl.com>
 - **LearnOpenGL-CN**: <https://learnopengl-cn.github.io>
 
 ## License

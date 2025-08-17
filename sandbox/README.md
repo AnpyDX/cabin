@@ -1,5 +1,9 @@
 # Sandbox
 
+The following is the list of sandbox-app examples.
+
+Check [manual](MANUAL) to learn how to create your own sandbox-app.
+
 ## Hello Triangle
 
 A sample application, showing how to create a graphics
