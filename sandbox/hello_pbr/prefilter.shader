@@ -33,8 +33,8 @@ void main() {
     float sampleScale = 0.0;
     vec3 prefilterColor = vec3(0.0);
     for (uint i = 0u; i < SAMPLE_NUM; i++) {
-        vec2 Si = Hammersley(i, SAMPLE_NUM);
-        vec3 H = ImportanceSampleGGX(Si, N, roughnessFactor);
+        vec2 Xi = Hammersley(i, SAMPLE_NUM);
+        vec3 H = ImportanceSampleGGX(Xi, N, roughnessFactor);
         vec3 L = normalize(2.0 * dot(V, H) * H - V);
 
         float NdotL = max(dot(N, L), 0.0);
