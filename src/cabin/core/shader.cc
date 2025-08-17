@@ -219,7 +219,9 @@ namespace {
                             usedStream << usedFile.rdbuf();
 
                             m_blockFileStack.push_back(absolutePath);
+                            result.append(std::format("// ------------- BEGIN QUOTE, FROM {} -------------\n", param));
                             result.append(processBlock(usedStream.str(), param, 0));
+                            result.append(std::format("// -------------  END QUOTE, FROM {} -------------\n", param));
                         }
                         else {
                             for (auto& macro : std::vector<std::string> { "version", "vertex", "geometory", "fragment" }) {
