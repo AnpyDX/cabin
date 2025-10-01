@@ -8,7 +8,6 @@
  *  showing a simple usage of `core::Framebuffer`.
  */
 
-#include <memory>
 #include <vector>
 
 #include <glm/glm.hpp>
@@ -44,32 +43,28 @@ std::vector<unsigned int> indices = {
 class ImageViewer: public Sandbox {
 public:
     ImageViewer(): Sandbox("Image Viewer", 800, 600) {
-        m_vertexBuffer = std::make_unique<core::VertexBuffer>(
-            core::VertexBuffer::Builder()
+        m_vertexBuffer = core::VertexBuffer::Builder()
                             .setBuffer(squareVertices.data(), squareVertices.size() * sizeof(Vertex), GL_STATIC_DRAW)
                             .addAttribute<float>(0, 2)
                             .addAttribute<float>(1, 2)
-                            .build()
-        );
-        m_imageShader = std::make_unique<core::Shader>(
-            core::Shader::Builder()
-                        .fromFile("image_viewer/image.shader")
-                        .build()
-        );
-        m_pixelateShader = std::make_unique<core::Shader>(
-            core::Shader::Builder()
-                        .fromFile("image_viewer/pixelate.shader")
-                        .build()
-        );
-        m_imageTexture = std::make_unique<core::Texture>(
-            core::Texture::Builder()
-                        .fromFile2D("image_viewer/awesomeface.png")
-                        .setWrap(GL_REPEAT, GL_REPEAT)
-                        .setFilter(GL_LINEAR, GL_LINEAR)
-                        .genMipmap()
-                        .build()
-        );
-        m_subFramebuffer = std::make_unique<core::FrameBuffer>();
+                            .build();
+
+        m_imageShader = core::Shader::Builder()
+                            .fromFile("assets/shaders/image.shader")
+                            .build();
+
+        m_pixelateShader = core::Shader::Builder()
+                            .fromFile("assets/shaders/pixelate.shader")
+                            .build();
+
+        m_imageTexture = core::Texture::Builder()
+                            .fromFile2D("assets/textures/awesomeface.png")
+                            .setWrap(GL_REPEAT, GL_REPEAT)
+                            .setFilter(GL_LINEAR, GL_LINEAR)
+                            .genMipmap()
+                            .build();
+
+        m_subFramebuffer = core::FrameBuffer();
 
         glfwSetWindowUserPointer(window, reinterpret_cast<void*>(this));
         glfwSwapInterval(true);
@@ -84,6 +79,8 @@ public:
         });
 
         glfwSetMouseButtonCallback(window, [](GLFWwindow* window, int button, int action, int mods) {
+            if (ImGui::GetIO().WantCaptureMouse) return;
+            
             auto app = reinterpret_cast<ImageViewer*>(glfwGetWindowUserPointer(window));
 
             if (button == GLFW_MOUSE_BUTTON_LEFT) {
@@ -109,23 +106,20 @@ public:
             auto app = reinterpret_cast<ImageViewer*>(glfwGetWindowUserPointer(window));
 
             if (count > 1) {
-                app->m_openErrorInfo = "Too many images! Drop single file at once.";
+                app->m_openErrorInfo = "Too many files! Drop single image at a time.";
                 app->m_showError = true;
             }
             else {
                 try {
-                    auto inputImage = std::make_unique<core::Texture>(
-                        core::Texture::Builder()
-                                    .fromFile2D(paths[0])
-                                    .setWrap(GL_REPEAT, GL_REPEAT)
-                                    .setFilter(GL_LINEAR, GL_LINEAR)
-                                    .genMipmap()
-                                    .build()
-                    );
+                    auto inputImage = core::Texture::Builder()
+                                        .fromFile2D(paths[0])
+                                        .setWrap(GL_REPEAT, GL_REPEAT)
+                                        .setFilter(GL_LINEAR, GL_LINEAR)
+                                        .genMipmap()
+                                        .build();
                     app->m_imageTexture = std::move(inputImage);
                     app->m_imagePath = paths[0];
                     app->resetImageParameters();
-                    app->genPixelizedTexture();
                 } catch (const std::exception& e) {
                     app->m_openErrorInfo = e.what();
                     app->m_showError = true;
@@ -139,30 +133,27 @@ public:
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        m_vertexBuffer->bind();
+        m_vertexBuffer.bind();
 
         resetImageParameters();
-        genPixelizedTexture();
     }
 
     void genPixelizedTexture() {
         int texWidth, texHeight;
         int scaleFactor = 4 * m_pixelateIntensity;
-        texWidth = m_imageTexture->width / scaleFactor;
-        texHeight = m_imageTexture->height / scaleFactor;
+        texWidth = m_imageTexture.width / scaleFactor;
+        texHeight = m_imageTexture.height / scaleFactor;
 
-        m_pixelateTexture = std::make_unique<core::Texture>(
-            core::Texture::Builder()
-                        .asEmpty2D(texWidth, texHeight, GL_RGBA16F)
-                        .setFilter(GL_NEAREST, GL_NEAREST)
-                        .build()
-        );
-        m_subFramebuffer->attachTexture(GL_COLOR_ATTACHMENT0, m_pixelateTexture->id.value());
+        m_pixelateTexture = core::Texture::Builder()
+                                .asEmpty2D(texWidth, texHeight, GL_RGBA16F)
+                                .setFilter(GL_NEAREST, GL_NEAREST)
+                                .build();
+        m_subFramebuffer.attachTexture(GL_COLOR_ATTACHMENT0, m_pixelateTexture.id.value());
 
-        m_subFramebuffer->bind();
-        m_pixelateShader->bind();
-        m_pixelateShader->setInt("texture0", 0);
-        m_imageTexture->active(0);
+        m_subFramebuffer.bind();
+        m_pixelateShader.bind();
+        m_pixelateShader.setInt("texture0", 0);
+        m_imageTexture.active(0);
 
         glViewport(0, 0, texWidth, texHeight);
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -174,23 +165,21 @@ public:
         auto [width, height] = getWindowSize();
         glViewport(0, 0, width, height);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-        m_imageShader->bind();
-        m_imageShader->setInt("texture0", 0);
     }
 
     void resetImageParameters() {
+        m_pixelateIntensity = 0;
         m_imageScaleFactor = 1.0f;
         m_imageLastPosition = glm::vec2 { 0.0f };
         m_imageCurrentPosition = glm::vec2 { 0.0f };
 
-        if (m_imageTexture->width > m_imageTexture->height) {
+        if (m_imageTexture.width > m_imageTexture.height) {
             m_imageScale.x = 1.0f;
-            m_imageScale.y = static_cast<float>(m_imageTexture->height) / m_imageTexture->width;
+            m_imageScale.y = static_cast<float>(m_imageTexture.height) / m_imageTexture.width;
         }
         else {
             m_imageScale.y = 1.0f;
-            m_imageScale.x = static_cast<float>(m_imageTexture->width) / m_imageTexture->height;
+            m_imageScale.x = static_cast<float>(m_imageTexture.width) / m_imageTexture.height;
         }
     }
 
@@ -211,13 +200,15 @@ public:
 
         glm::mat4 projection = glm::ortho(-halfW, halfW, -halfH, halfH, -5.0f, 5.0f);
         
-        m_imageShader->setMat4("model", model);
-        m_imageShader->setMat4("projection", projection);
+        m_imageShader.bind();
+        m_imageShader.setInt("texture0", 0);
+        m_imageShader.setMat4("model", model);
+        m_imageShader.setMat4("projection", projection);
 
-        if (m_imageStyle)
-            m_pixelateTexture->active(0);
+        if (m_pixelateIntensity)
+            m_pixelateTexture.active(0);
         else
-            m_imageTexture->active(0);
+            m_imageTexture.active(0);
 
         glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), 
                         GL_UNSIGNED_INT, static_cast<void*>(indices.data()));
@@ -248,18 +239,13 @@ public:
         if (ImGui::Begin("menu", nullptr, windowFlags))
         {
             ImGui::Text("%s", m_imagePath.c_str());
-            ImGui::BulletText("Size: %d * %d", m_imageTexture->width, m_imageTexture->height);
-            ImGui::BulletText("Format: %s", m_imageTexture->format == GL_RGB ? "RGB" : "RGBA");
+            ImGui::BulletText("Size: %d * %d", m_imageTexture.width, m_imageTexture.height);
+            ImGui::BulletText("Format: %s", m_imageTexture.format == GL_RGB ? "RGB" : "RGBA");
 
-            ImGui::SeparatorText("Style");
-            ImGui::RadioButton("Raw", &m_imageStyle, 0); ImGui::SameLine();
-            ImGui::RadioButton("Pixelation", &m_imageStyle, 1);
-
-            if (m_imageStyle) {
-                if (ImGui::InputInt("Intensity", &m_pixelateIntensity)) {
-                    m_pixelateIntensity = glm::clamp(m_pixelateIntensity, 1, 10);
+            ImGui::SeparatorText("Pixelate");
+            if (ImGui::SliderInt("", &m_pixelateIntensity, 0, 10)) {
+                if (m_pixelateIntensity)
                     genPixelizedTexture();
-                }
             }
 
             ImGui::SeparatorText("Helps");
@@ -307,26 +293,25 @@ public:
 private:
     bool m_showMenu = true;
     bool m_showError = false;
-    std::string m_imagePath {  "awesomeface.png" };
+    std::string m_imagePath { "awesomeface.png" };
     std::string m_openErrorInfo {};
     
     bool m_underMove = false;
     glm::vec2 m_clickPosition {};
 
-    int m_imageStyle = 0;
-    int m_pixelateIntensity = 1;
+    int m_pixelateIntensity = 0;
     float m_imageScaleFactor = 1.0f;
     glm::vec2 m_imageScale {};
     glm::vec2 m_imageLastPosition { 0.0f };
     glm::vec2 m_imageCurrentPosition { 0.0f };
     
 private:
-    std::unique_ptr<core::VertexBuffer> m_vertexBuffer;
-    std::unique_ptr<core::Shader> m_imageShader;
-    std::unique_ptr<core::Shader> m_pixelateShader;
-    std::unique_ptr<core::FrameBuffer> m_subFramebuffer;
-    std::unique_ptr<core::Texture> m_imageTexture;
-    std::unique_ptr<core::Texture> m_pixelateTexture;
+    core::VertexBuffer m_vertexBuffer;
+    core::Shader m_imageShader;
+    core::Shader m_pixelateShader;
+    core::FrameBuffer m_subFramebuffer;
+    core::Texture m_imageTexture;
+    core::Texture m_pixelateTexture;
 };
 
 int main() {
