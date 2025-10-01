@@ -32,6 +32,7 @@ A sandbox-app folder will look like this:
 
 ```lua
 target("my_sandbox") -- Sandbox target name
+    set_rundir(".")
     set_kind("binary")
     add_files("*.cc")
 ```
@@ -68,14 +69,12 @@ xmake run <target>
 
 The `<target>` depends on the name provided by `target("...")` in `xmake.lua`.
 
-For this tutorial's context, the command should be:
+According to our previous `xmake.lua`, the command should be:
 
 ```bash
 xmake run my_sandbox
 ```
 
-**NOTICE**: The default workspace directory is `sandbox`, which is important while loading external assets by specifying relative paths.
+### 4. Next Step
 
-### 4. Advance
-
-To learn how to use cabin's OpenGL wrappers and utilities, and the shader syntax, please check the [Hello-Triangle](hello_triangle) sample.
+To further learn the details and usage of cabin's OpenGL wrappers and utilities, and the shader syntax, please check the [Hello-Triangle](hello_triangle) and other samples in `~/sandbox`.
