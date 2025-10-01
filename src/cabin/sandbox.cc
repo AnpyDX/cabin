@@ -1,9 +1,77 @@
 #include "sandbox.h"
 
+#include <string>
 #include <stdexcept>
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
+
+#include "misc/RobotoMonoBoldTTF.h"
+
+namespace {
+    static void applyImGuiStyle() {
+        ImGuiStyle& style = ImGui::GetStyle();
+
+        /* Main */
+        style.WindowPadding = ImVec2(8, 8);
+        style.FramePadding  = ImVec2(4, 3);
+        style.ItemSpacing   = ImVec2(8, 4);
+        style.ItemInnerSpacing  = ImVec2(4, 4);
+        style.TouchExtraPadding = ImVec2(0, 0);
+        style.IndentSpacing = 20;
+        style.ScrollbarSize = 14;
+        style.GrabMinSize   = 12;
+
+        /* Borders */
+        style.WindowBorderSize = 1;
+        style.ChildBorderSize  = 1;
+        style.PopupBorderSize  = 1;
+        style.FrameBorderSize  = 0;
+
+        /* Roudding */
+        style.WindowRounding = 3;
+        style.ChildRounding  = 1;
+        style.FrameRounding  = 1;
+        style.PopupRounding  = 1;
+        style.GrabRounding   = 1;
+        style.ScrollbarRounding = 9;
+
+        /* Tabs */
+        style.TabBorderSize      = 1;
+        style.TabBarBorderSize   = 1;
+        style.TabBarOverlineSize = 1;
+        style.TabRounding        = 2;
+
+        /* Tables */
+        style.CellPadding = ImVec2(4, 2);
+        style.TableAngledHeadersTextAlign = ImVec2(0.5f, 0.0f);
+
+        /* Trees */
+        style.TreeLinesFlags    = ImGuiTreeNodeFlags_DrawLinesFull;
+        style.TreeLinesSize     = 1;
+        style.TreeLinesRounding = 0;
+
+        /* Windows */
+        style.WindowTitleAlign = ImVec2(0.0f, 0.4f);
+        style.WindowBorderHoverPadding = 4;
+        style.WindowMenuButtonPosition = ImGuiDir_Left;
+
+        /* Widgets */
+        style.ColorButtonPosition = ImGuiDir_Right;
+        style.ButtonTextAlign     = ImVec2(0.5f, 0.5f);
+        style.SelectableTextAlign = ImVec2(0, 0);
+        style.SeparatorTextBorderSize = 2;
+        style.SeparatorTextAlign   = ImVec2(0.0f, 0.5f);
+        style.SeparatorTextPadding = ImVec2(16, 2);
+        style.LogSliderDeadzone = 4;
+        style.ImageBorderSize   = 0;
+
+        /* Colors */
+        ImGui::StyleColorsClassic();
+        style.Colors[ImGuiCol_WindowBg] = ImVec4(0.06f, 0.06f, 0.06f, 0.94f);
+        style.Colors[ImGuiCol_TitleBgCollapsed].w = 128.0f;
+    }
+}
 
 namespace cabin {
 
@@ -82,18 +150,20 @@ namespace cabin {
         ImGui_ImplGlfw_InitForOpenGL(window, true);
         ImGui_ImplOpenGL3_Init("#version 430");
 
-        // Config ImGui styles and font
-        ImGui::StyleColorsLight();
-        ImGuiStyle* style = &ImGui::GetStyle();
-        style->WindowRounding = 3;
-        style->ChildRounding = 1;
-        style->FrameRounding = 1;
-        style->PopupRounding = 1;
-        style->GrabRounding = 1;
-        style->Colors[ImGuiCol_WindowBg].w = 0.95f;
+        /* Customize ImGui's Styles and Font */
+        applyImGuiStyle();
 
-        ImGuiIO& io = ImGui::GetIO();
-        float baseFontSize = 19.0f;
-        io.Fonts->AddFontFromFileTTF("assets/fonts/SourceSans3-Bold.ttf", baseFontSize, nullptr, io.Fonts->GetGlyphRangesChineseFull());
+        float baseFontSize = 18.0f;
+        std::string fontName = "Roboto Mono Bold";
+
+        ImFontConfig fontCfg {};
+        fontCfg.FontDataOwnedByAtlas = false;
+        std::copy_n(fontName.c_str(), fontName.size(), fontCfg.Name);
+        
+        ImGui::GetIO().Fonts->AddFontFromMemoryTTF(
+            static_cast<void*>(RobotoMonoBoldTTF),
+            sizeof(RobotoMonoBoldTTF),
+            baseFontSize, &fontCfg
+        );
     }
 }
