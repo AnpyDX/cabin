@@ -18,40 +18,38 @@ const int ENVIRONMENT_RESOLUTION = 2048;
 
 class HelloPBR: public Sandbox {
 public:
-    HelloPBR() : Sandbox("Hello PBR", 800, 600) {
+    HelloPBR() : Sandbox("Hello PBR", 1200, 800) {
         m_et2cubeShader = core::Shader::Builder()
-                            .fromFile("hello_pbr/et2cube.shader")
+                            .fromFile("assets/shaders/et2cube.shader")
                             .build();
         
         m_irradianceShader = core::Shader::Builder()
-                                .fromFile("hello_pbr/irradiance.shader")
+                                .fromFile("assets/shaders/irradiance.shader")
                                 .build();
 
         m_prefilterShader = core::Shader::Builder()
-                                .fromFile("hello_pbr/prefilter.shader")
+                                .fromFile("assets/shaders/prefilter.shader")
                                 .build();
 
         m_BRDFLUTShader = core::Shader::Builder()
-                            .fromFile("hello_pbr/brdf.shader")
+                            .fromFile("assets/shaders/brdf.shader")
                             .build();
 
         m_shapePBRShader = core::Shader::Builder()
-                            .fromFile("hello_pbr/shapePBR.shader")
+                            .fromFile("assets/shaders/shapePBR.shader")
                             .build();
 
         m_modelPBRShader = core::Shader::Builder()
-                            .fromFile("hello_pbr/modelPBR.shader")
+                            .fromFile("assets/shaders/modelPBR.shader")
                             .build();
 
         m_skyboxShader = core::Shader::Builder()
-                            .fromFile("hello_pbr/skybox.shader")
+                            .fromFile("assets/shaders/skybox.shader")
                             .build();
 
         m_sphere = utils::Shape::Builder().asShpere(1.0, 64).build();
 
         m_cube = utils::Shape::Builder().asCube().build();
-
-        m_sponzaModel = utils::Model::Builder().fromGLB("assets/models/Sponza.glb").build();
 
         m_coffeeCartModel = utils::Model::Builder().fromGLB("assets/models/CoffeeCart.glb").build();
 
@@ -65,6 +63,7 @@ public:
         enableImGui();
         ImGui::GetIO().IniFilename = nullptr;
 
+        glfwSwapInterval(true);
         glfwSetWindowAttrib(window, GL_SAMPLES, 4);
         glfwSetWindowUserPointer(window, reinterpret_cast<void*>(this));
         
@@ -82,19 +81,7 @@ public:
     }
 
     void generateIBLCubeMaps() {
-        /* Get HDRI Path */
-        if (HDRIIndex < 0 || HDRIIndex > 3)
-            throw std::runtime_error("bad HDRImage index");
-
-        static const char* HDRImagePaths[] = {
-            "newport_loft.hdr",
-            "gear_store_2k.hdr",
-            "empty_play_room_2k.hdr",
-            "billiard_hall_2k.hdr"
-        };
-
-        std::string HDRIPath = std::format("assets/textures/HDRI/{}", HDRImagePaths[HDRIIndex]);
-        utils::Console::info(std::format("generating IBL for HDRI: \"{}\"", HDRIPath));
+        utils::Console::info("generating IBL ...");
 
         /* IBL Generating Preparation */
         glDisable(GL_DEPTH_TEST);
@@ -118,7 +105,7 @@ public:
 
         /* From Equirectangular To CubeMap */
         auto hdrTexture = core::Texture::Builder()
-                                .fromFile2D(HDRIPath, GL_RGB32F)
+                                .fromFile2D("assets/textures/newport_loft.hdr", GL_RGB32F)
                                 .setWrap(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
                                 .setFilter(GL_LINEAR, GL_LINEAR)
                                 .build();
@@ -304,21 +291,14 @@ public:
                 m_shapePBRShader.setFloat("occlusionFactor", mtORM.r);
 
                 m_sphere.draw();
-            }            
+            }
         }
 
-        else if (sceneIndex == 2 || sceneIndex == 3) {
+        else {
             glm::mat4 model { 1.0f };
-
-            if (sceneIndex == 2) {
-                model = glm::translate(model, glm::vec3(0.0f, -1.0f, 1.0f));
-                model = glm::scale(model, glm::vec3(sponzaScaleFactor));
-            }
-            else {
-                model = glm::translate(model, glm::vec3(0.0, -1.0, 0.0));
-                model = glm::rotate(model, glm::radians(coffeeCartRotationAngle), glm::vec3(0.0f, 1.0f, 0.0f));
-                model = glm::scale(model, glm::vec3(coffeeCartScaleFactor));
-            }
+            model = glm::translate(model, glm::vec3(0.0, -1.0, 0.0));
+            model = glm::rotate(model, glm::radians(coffeeCartRotationAngle), glm::vec3(0.0f, 1.0f, 0.0f));
+            model = glm::scale(model, glm::vec3(coffeeCartScaleFactor));
 
             glm::mat3 normalMatrix = glm::mat3(model);
             normalMatrix = glm::transpose(glm::inverse(normalMatrix));
@@ -342,16 +322,11 @@ public:
                 m_modelPBRShader.setVec3(name, value);
             }
 
-            if (sceneIndex == 2) {
-                m_sponzaModel.draw(m_modelPBRShader);
-            }
-            else {
-                m_coffeeCartModel.draw(m_modelPBRShader);
-                if (rotateCoffeeCartModel) {
-                    coffeeCartRotationAngle += coffeeCartRotationSpeed;
-                    if (coffeeCartRotationAngle >= 360.0f)
-                        coffeeCartRotationAngle = 0.0f;
-                }
+            m_coffeeCartModel.draw(m_modelPBRShader);
+            if (rotateCoffeeCartModel) {
+                coffeeCartRotationAngle += coffeeCartRotationSpeed;
+                if (coffeeCartRotationAngle >= 360.0f)
+                    coffeeCartRotationAngle = 0.0f;
             }
         }
 
@@ -388,11 +363,6 @@ public:
 
             ImGui::SeparatorText("Environment");
             ImGui::BulletText("Skybox"); {
-                static const char* HDRIs[] = { "Newport Loft", "Gear Store", "Empty Playroom", "Billiard Hall" };
-                if (ImGui::Combo("HDRI", &HDRIIndex, HDRIs, IM_ARRAYSIZE(HDRIs))) {
-                    generateIBLCubeMaps();
-                }
-
                 static const char* skyboxModes[] = { "HDR", "Prefilter", "Irradiance" };
                 ImGui::Combo("Mode", &skyboxMode, skyboxModes, IM_ARRAYSIZE(skyboxModes));
             }
@@ -409,7 +379,7 @@ public:
 
 
             ImGui::SeparatorText("Scene");
-            static const char* scenes[] = { "Spheres", "Material Sandbox", "Sponza", "Coffee Cart" };
+            static const char* scenes[] = { "Spheres", "Material Sandbox", "Coffee Cart" };
             ImGui::Combo("Scene", &sceneIndex, scenes, IM_ARRAYSIZE(scenes));
 
             if (sceneIndex == 0) {
@@ -436,18 +406,11 @@ public:
             }
 
             else if (sceneIndex == 2) {
-                ImGui::Text("- Sponza Settings");
-                ImGui::InputFloat("Scale##2", &sponzaScaleFactor, 0.1f);
-
-                sponzaScaleFactor = glm::clamp(sponzaScaleFactor, 0.1f, 10.0f);
-            }
-
-            else if (sceneIndex == 3) {
                 ImGui::Text("- Coffee Cart Settings");
-                ImGui::InputFloat("Scale##3", &coffeeCartScaleFactor, 0.1f);
+                ImGui::InputFloat("Scale##2", &coffeeCartScaleFactor, 0.1f);
                 
-                ImGui::Checkbox("Rotate##3", &rotateCoffeeCartModel);
-                ImGui::InputFloat("Rotate speed##3", &coffeeCartRotationSpeed, 0.1f);
+                ImGui::Checkbox("Rotate##2", &rotateCoffeeCartModel);
+                ImGui::InputFloat("Rotate speed##2", &coffeeCartRotationSpeed, 0.1f);
 
                 coffeeCartScaleFactor = glm::clamp(coffeeCartScaleFactor, 0.1f, 10.0f);
                 coffeeCartRotationSpeed = glm::clamp(coffeeCartRotationSpeed, 0.1f, 10.0f);
@@ -467,7 +430,6 @@ private:
     int sceneIndex = 0;
 
     // Skybox Settings
-    int HDRIIndex = 0;
     int skyboxMode = 0;
 
     // Lights Settings
@@ -486,9 +448,6 @@ private:
     // Material Sandbox Settings
     glm::vec3 mtBaseColor { 0.5f };
     glm::vec3 mtORM { 1.0f, 0.5f, 0.5f };
-
-    // Sponza Model Settings
-    float sponzaScaleFactor = 1.0f;
 
     // Coffee Cart Model Settings
     bool  rotateCoffeeCartModel = false;
