@@ -19,6 +19,7 @@ namespace cabin::core {
         FrameBuffer(GLuint id);
 
         FrameBuffer(FrameBuffer&& right) noexcept;
+        FrameBuffer& operator=(FrameBuffer&& right) noexcept;
         FrameBuffer(const FrameBuffer&) = delete;
         FrameBuffer& operator=(const FrameBuffer&) = delete;
 

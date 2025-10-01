@@ -18,6 +18,16 @@ namespace cabin::core {
         right.id.reset();
     }
 
+    FrameBuffer& FrameBuffer::operator=(FrameBuffer&& right) noexcept {
+        if (id.has_value()) {
+            glDeleteFramebuffers(1, &id.value());
+        }
+        id = right.id;
+        right.id.reset();
+        
+        return *this;
+    }
+
     FrameBuffer::~FrameBuffer() {
         if (id.has_value()) {
             glDeleteFramebuffers(1, &id.value());
