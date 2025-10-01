@@ -7,7 +7,6 @@
 
 #pragma once
 #include <string>
-#include <sstream>
 #include <optional>
 #include <glm/glm.hpp>
 #include <glad/glad.h>
