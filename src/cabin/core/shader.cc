@@ -408,7 +408,7 @@ namespace cabin::core {
         }
         id = right.id;
         right.id.reset();
-
+        
         return *this;
     }
 
