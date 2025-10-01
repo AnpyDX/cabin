@@ -10,7 +10,6 @@
  *  ImGui and FPS-style camera integrated.
  */
 
-#include <memory>
 #include <vector>
 
 #include <GLFW/glfw3.h>
@@ -46,18 +45,15 @@ class HelloTriangle: public Sandbox {
 public:
     HelloTriangle()
     : Sandbox("Hello Triangle", 800, 600) {
-        m_shader = std::make_unique<core::Shader>(
-            core::Shader::Builder()
-                        .fromFile("hello_triangle/main.shader")
-                        .build()
-        );
-        m_vertexBuffer = std::make_unique<core::VertexBuffer>(
-            core::VertexBuffer::Builder()
+        m_shader = core::Shader::Builder()
+                        .fromFile("main.shader")
+                        .build();
+        
+        m_vertexBuffer = core::VertexBuffer::Builder()
                                 .setBuffer(static_cast<void*>(vertices.data()), sizeof(Vertex) * vertices.size(), GL_STATIC_DRAW)
                                 .addAttribute<float>(0, 3)
                                 .addAttribute<float>(1, 3)
-                                .build()
-        );
+                                .build();
 
         // Enable and initialize ImGui.
         enableImGui();
@@ -65,6 +61,7 @@ public:
         // Prevent `imgui.ini` generation.
         ImGui::GetIO().IniFilename = nullptr;
 
+        glfwSwapInterval(true);
         glfwSetWindowUserPointer(window, reinterpret_cast<void*>(this));
 
         glfwSetMouseButtonCallback(window, [](GLFWwindow* window, int button, int action, int mods) {
@@ -90,8 +87,8 @@ public:
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        m_shader->bind();
-        m_vertexBuffer->bind();
+        m_shader.bind();
+        m_vertexBuffer.bind();
 
         glm::mat4 model { 1.0f };
         model = glm::translate(model, glm::vec3(0.0, 0.0, -1.0));
@@ -105,9 +102,9 @@ public:
         float aspect = static_cast<float>(width) / (height != 0.0f ? height : 1.0f);
         projection = glm::perspective(glm::radians(45.0f), aspect, 0.1f, 50.0f);
 
-        m_shader->setMat4("model", model);
-        m_shader->setMat4("view", view);
-        m_shader->setMat4("projection", projection);
+        m_shader.setMat4("model", model);
+        m_shader.setMat4("view", view);
+        m_shader.setMat4("projection", projection);
 
         glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), 
                         GL_UNSIGNED_INT, static_cast<void*>(indices.data()));
@@ -139,8 +136,8 @@ public:
 
 private:
     utils::Camera m_camera { { 0.0f, 0.0f, 0.0f }, { 0.0, 0.0, -1.0 }, { 0.0, 1.0, 0.0 } };
-    std::unique_ptr<core::Shader> m_shader;
-    std::unique_ptr<core::VertexBuffer> m_vertexBuffer;
+    core::Shader m_shader;
+    core::VertexBuffer m_vertexBuffer;
 };
 
 
