@@ -56,6 +56,8 @@ xmake run <target>
 
 - `src`: Source code of cabin framework.
 - `sandbox`: Sample sandbox-apps.
+- `scripts`: Tool scripts.
+- `showcase`: Samples' pictures.
 
 ## Thirdparty
 
@@ -70,9 +72,8 @@ xmake run <target>
 
 ### Assets
 
-- **Poly Haven**: <https://polyhaven.com>
-- **Source Sans**: <https://github.com/adobe-fonts/source-sans>
-- **glTF-Assets**: <https://github.com/KhronosGroup/glTF-Sample-Assets>
+- **Coffee Cart**: <https://polyhaven.com/a/CoffeeCart_01>
+- **Roboto Mono**: <https://github.com/notofonts/latin-greek-cyrillic>
 
 ## References
 

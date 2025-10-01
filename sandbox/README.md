@@ -52,5 +52,4 @@ xmake run hello_pbr
 
 ![hello_pbr_0](../showcase/hello_pbr_0.png)
 ![hello_pbr_1](../showcase/hello_pbr_1.png)
-![hello_pbr_3](../showcase/hello_pbr_3.png)
 ![hello_pbr_2](../showcase/hello_pbr_2.png)
