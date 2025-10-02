@@ -18,7 +18,7 @@ Besides, you can also learn how to integrate ImGui and
 xmake run hello_triangle
 ```
 
-![hello_triangle](../showcase/hello_triangle.png)
+![hello_triangle](../showcase/hello_triangle.jpg)
 
 ## Image Viewer
 
@@ -31,7 +31,7 @@ with `core::FrameBuffer` and `core::Texture`.
 xmake run image_viewer
 ```
 
-![image_viewer](../showcase/image_viewer.png)
+![image_viewer](../showcase/image_viewer.jpg)
 
 ## Hello PBR
 
@@ -50,6 +50,6 @@ where you can learn:
 xmake run hello_pbr
 ```
 
-![hello_pbr_0](../showcase/hello_pbr_0.png)
-![hello_pbr_1](../showcase/hello_pbr_1.png)
-![hello_pbr_2](../showcase/hello_pbr_2.png)
+![hello_pbr_0](../showcase/hello_pbr_0.jpg)
+![hello_pbr_1](../showcase/hello_pbr_1.jpg)
+![hello_pbr_2](../showcase/hello_pbr_2.jpg)

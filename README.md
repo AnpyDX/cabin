@@ -4,7 +4,7 @@
 
 ## Showcase
 
-![hello_pbr](showcase/hello_pbr_1.png)
+![hello_pbr](showcase/hello_pbr_1.jpg)
 
 For the manual and more samples, please check sandbox [page](sandbox).
 
