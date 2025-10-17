@@ -1,5 +1,6 @@
-build
-.xmake
-.vscode
-vsxmake*
+/build
+/.xmake
+/.vscode
+/vsxmake*
+/sandbox/test
 DRAFT.md
