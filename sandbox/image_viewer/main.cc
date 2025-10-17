@@ -8,8 +8,6 @@
  *  showing a simple usage of `core::Framebuffer`.
  */
 
-#include <vector>
-
 #include <glm/glm.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
@@ -17,37 +15,17 @@
 #include <imgui.h>
 
 #include "cabin/sandbox.h"
+#include "cabin/utils/shape.h"
 #include "cabin/core/shader.h"
 #include "cabin/core/texture.h"
 #include "cabin/core/framebuffer.h"
-#include "cabin/core/vertexbuffer.h"
 using namespace cabin;
-
-struct Vertex {
-    glm::vec2 position;
-    glm::vec2 texCoord;
-};
-
-std::vector<Vertex> squareVertices = {
-    { {  1.0f,  1.0f }, { 1.0f, 1.0f } },
-    { {  1.0f, -1.0f }, { 1.0f, 0.0f } },
-    { { -1.0f, -1.0f }, { 0.0f, 0.0f } },
-    { { -1.0f,  1.0f }, { 0.0f, 1.0f } },
-};
-
-std::vector<unsigned int> indices = {
-    0, 1, 2, 0, 2, 3
-};
 
 
 class ImageViewer: public Sandbox {
 public:
     ImageViewer(): Sandbox("Image Viewer", 800, 600) {
-        m_vertexBuffer = core::VertexBuffer::Builder()
-                            .setBuffer(squareVertices.data(), squareVertices.size() * sizeof(Vertex), GL_STATIC_DRAW)
-                            .addAttribute<float>(0, 2)
-                            .addAttribute<float>(1, 2)
-                            .build();
+        m_square = utils::Shape::Builder().asSquare().build();
 
         m_imageShader = core::Shader::Builder()
                             .fromFile("assets/shaders/image.shader")
@@ -133,8 +111,6 @@ public:
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        m_vertexBuffer.bind();
-
         resetImageParameters();
     }
 
@@ -159,8 +135,7 @@ public:
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), 
-                        GL_UNSIGNED_INT, static_cast<void*>(indices.data()));
+        m_square.draw();
 
         auto [width, height] = getWindowSize();
         glViewport(0, 0, width, height);
@@ -210,8 +185,7 @@ public:
         else
             m_imageTexture.active(0);
 
-        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), 
-                        GL_UNSIGNED_INT, static_cast<void*>(indices.data()));
+        m_square.draw();
     }
 
     void interfaceFrame() override {
@@ -306,7 +280,7 @@ private:
     glm::vec2 m_imageCurrentPosition { 0.0f };
     
 private:
-    core::VertexBuffer m_vertexBuffer;
+    utils::Shape m_square;
     core::Shader m_imageShader;
     core::Shader m_pixelateShader;
     core::FrameBuffer m_subFramebuffer;

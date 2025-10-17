@@ -193,7 +193,7 @@ public:
                                 .setWrap(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
                                 .setFilter(GL_LINEAR, GL_LINEAR)
                                 .build();
-        auto planeShape = utils::Shape::Builder().asPlane().build();
+        auto planeShape = utils::Shape::Builder().asSquare().build();
 
         m_BRDFLUTShader.bind();
         glViewport(0, 0, mapLength, mapLength);
