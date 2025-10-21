@@ -38,13 +38,11 @@ namespace cabin::core {
     void FrameBuffer::attachTexture(GLenum target, GLuint id) {
         glBindFramebuffer(GL_FRAMEBUFFER, this->id.value());
         glFramebufferTexture(GL_FRAMEBUFFER, target, id, 0);
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
     void FrameBuffer::attachRenderbuffer(GLenum target, GLuint id) {
         glBindFramebuffer(GL_FRAMEBUFFER, this->id.value());
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, target, GL_RENDERBUFFER, id);
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
     void FrameBuffer::bind() const {
