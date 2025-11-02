@@ -33,6 +33,16 @@ namespace cabin::core {
         right.id.reset();
     }
 
+    RenderBuffer& RenderBuffer::operator=(RenderBuffer&& right) noexcept {
+        if (id.has_value()) {
+            glDeleteRenderbuffers(1, &id.value());
+        }
+        id = right.id;
+        right.id.reset();
+        
+        return *this;
+    }
+
     RenderBuffer::~RenderBuffer() {
         if (id.has_value()) {
             glDeleteRenderbuffers(1, &id.value());

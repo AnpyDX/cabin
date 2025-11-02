@@ -37,8 +37,11 @@ namespace cabin::core {
         };
 
     public:
+        RenderBuffer() = default;
+
         RenderBuffer(GLuint id, GLenum format, GLsizei width, GLsizei height);
         RenderBuffer(RenderBuffer&& right) noexcept;
+        RenderBuffer& operator=(RenderBuffer&&) noexcept;
         RenderBuffer(const RenderBuffer&) = delete;
         RenderBuffer& operator=(const RenderBuffer&) = delete;
 
