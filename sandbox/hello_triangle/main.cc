@@ -21,10 +21,10 @@
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 
-#include "cabin/sandbox.h"
-#include "cabin/utils/camera.h"
-#include "cabin/core/shader.h"
-#include "cabin/core/vertexbuffer.h"
+#include <cabin/sandbox.h>
+#include <cabin/utils/camera.h>
+#include <cabin/core/shader.h>
+#include <cabin/core/vertexbuffer.h>
 using namespace cabin;
 
 

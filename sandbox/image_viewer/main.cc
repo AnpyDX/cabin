@@ -14,11 +14,11 @@
 
 #include <imgui.h>
 
-#include "cabin/sandbox.h"
-#include "cabin/utils/shape.h"
-#include "cabin/core/shader.h"
-#include "cabin/core/texture.h"
-#include "cabin/core/framebuffer.h"
+#include <cabin/sandbox.h>
+#include <cabin/utils/shape.h>
+#include <cabin/core/shader.h>
+#include <cabin/core/texture.h>
+#include <cabin/core/framebuffer.h>
 using namespace cabin;
 
 

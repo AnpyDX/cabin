@@ -5,13 +5,13 @@
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 
-#include "cabin/sandbox.h"
-#include "cabin/utils/model.h"
-#include "cabin/utils/shape.h"
-#include "cabin/utils/camera.h"
-#include "cabin/core/shader.h"
-#include "cabin/core/texture.h"
-#include "cabin/core/framebuffer.h"
+#include <cabin/sandbox.h>
+#include <cabin/utils/model.h>
+#include <cabin/utils/shape.h>
+#include <cabin/utils/camera.h>
+#include <cabin/core/shader.h>
+#include <cabin/core/texture.h>
+#include <cabin/core/framebuffer.h>
 using namespace cabin;
 
 const int ENVIRONMENT_RESOLUTION = 2048;
