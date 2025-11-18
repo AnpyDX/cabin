@@ -41,7 +41,7 @@ target("my_sandbox") -- Sandbox target name
 
 ```cpp
 #include <GLFW/glfw3.h>
-#include "cabin/sandbox"
+#include "cabin/sandbox.h"
 using namespace cabin;
 
 class MyApp: public Sandbox {
