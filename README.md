@@ -37,6 +37,8 @@ auto vertexBuffer = core::VertexBuffer::Builder()
 - Compiler with `C++20` support
 - Latest [xmake](https://github.com/xmake-io/xmake)
 
+> Tested on Windows-11 and Debian-13, x64 arch.
+
 ## Build & Run
 
 1. Build from source:
