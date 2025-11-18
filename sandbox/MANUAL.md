@@ -15,33 +15,34 @@ First, make sure your system has satisfied the following requirements:
 
 Then, get [cabin](https://github.com/anpydx/cabin)'s source by `git` or downloading ZIP directly.
 
-### 2. Create Sandbox
+### 2. Create a Sandbox-App
 
 All sandbox-apps are located in `sandbox` directory. The folder inside `sandbox` will be considered as a sandbox-app only if it contains a `xmake.lua`. To make the tutorial  simple, here is a most basic sandbox-app as an example.
 
 A sandbox-app folder will look like this:
 
 ```txt
-|- \my_sandbox
-   |- xmake.lua
-   |- main.cc
-   |- ... (e.g. shaders)
+|- my_sandbox/
+|   |- xmake.lua
+|   |- main.cc
+|   |- ... (misc, e.g. shaders)
 ```
 
 - `xmake.lua`
 
 ```lua
-target("my_sandbox") -- Sandbox target name
+target("my_sandbox") -- App's target name
     set_rundir(".")
     set_kind("binary")
-    add_files("*.cc")
+    add_files("main.cc")
 ```
 
 - `main.cc`
 
 ```cpp
 #include <GLFW/glfw3.h>
-#include "cabin/sandbox.h"
+
+#include <cabin/sandbox.h>
 using namespace cabin;
 
 class MyApp: public Sandbox {
@@ -59,7 +60,7 @@ int main() {
 }
 ```
 
-### 3. Run Sandbox
+### 3. Run the App
 
 Change to cabin's **root directory**. Then buuild and run sandbox-app with the command below:
 
@@ -77,4 +78,4 @@ xmake run my_sandbox
 
 ### 4. Next Step
 
-To further learn the details and usage of cabin's OpenGL wrappers and utilities, and the shader syntax, please check the [Hello-Triangle](hello_triangle) and other samples in `~/sandbox`.
+To further learn the details and usage of cabin's OpenGL wrappers and utilities, and the shader syntax, please check the [Hello-Triangle](hello_triangle) and other samples in `sandbox/`.
