@@ -106,7 +106,6 @@ public:
         });
 
         enableImGui();
-        ImGui::GetIO().IniFilename = nullptr; // Disable imgui.ini
 
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
