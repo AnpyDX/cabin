@@ -58,25 +58,11 @@ public:
         // Enable and initialize ImGui.
         enableImGui();
 
-        // Prevent `imgui.ini` generation.
-        ImGui::GetIO().IniFilename = nullptr;
+        // Register camera for the app.
+        registerCamera(&m_camera);
 
-        glfwSwapInterval(true);
-        glfwSetWindowUserPointer(window, reinterpret_cast<void*>(this));
-
-        glfwSetMouseButtonCallback(window, [](GLFWwindow* window, int button, int action, int mods) {
-            // Pass mouse button input to ImGui (as we have called `glfwSetMouseButtonCallback` manully, which
-            //                                    overwrite the ImGui callback setted in `enableImGui`).
-            ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
-
-            // Determine whether the cursor is within ImGui windows.
-            if (ImGui::GetIO().WantCaptureMouse) return;
-
-            auto app = reinterpret_cast<HelloTriangle*>(glfwGetWindowUserPointer(window));
-
-            // Pass mouse button input to camera.
-            app->m_camera.mouseButtonCallback(window, button, action);
-        });
+        // Enable V-Sync
+        glfwSwapInterval(GLFW_TRUE);
     }
 
     void renderFrame() override {
@@ -129,9 +115,6 @@ public:
     void processInput() {
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
             glfwSetWindowShouldClose(window, true);
-
-        // Update keyboard input and cursor position for camera.
-        m_camera.updateInput(window);
     }
 
 private:
