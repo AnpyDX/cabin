@@ -61,20 +61,10 @@ public:
         };
 
         enableImGui();
-        ImGui::GetIO().IniFilename = nullptr;
+        registerCamera(&m_camera);
 
         glfwSwapInterval(true);
         glfwSetWindowAttrib(window, GL_SAMPLES, 4);
-        glfwSetWindowUserPointer(window, reinterpret_cast<void*>(this));
-        
-        glfwSetMouseButtonCallback(window, [](GLFWwindow* window, int button, int action, int mods) {
-            ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
-            if (ImGui::GetIO().WantCaptureMouse) return;
-
-            auto app = reinterpret_cast<HelloPBR*>(glfwGetWindowUserPointer(window));
-            app->m_camera.mouseButtonCallback(window, button, action);
-
-        });
 
         glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
         generateIBLCubeMaps();
@@ -420,8 +410,6 @@ public:
     }
 
     void processInput() {
-        m_camera.updateInput(window);
-
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
             glfwSetWindowShouldClose(window, true);
     }
