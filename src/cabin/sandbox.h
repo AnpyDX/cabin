@@ -116,9 +116,9 @@ namespace cabin {
 
     public:
         GLFWwindow* window { nullptr };
-        bool hasImGuiContext { false };
 
     private:
+        bool m_hasImGuiContext { false };
         utils::Camera* m_registerdCamera { nullptr };
     };
 

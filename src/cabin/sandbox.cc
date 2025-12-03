@@ -104,11 +104,11 @@ namespace cabin {
             window = nullptr;
         }
 
-        if (hasImGuiContext) {
+        if (m_hasImGuiContext) {
             ImGui_ImplOpenGL3_Shutdown();
             ImGui_ImplGlfw_Shutdown();
             ImGui::DestroyContext();
-            hasImGuiContext = false;
+            m_hasImGuiContext = false;
         }
     }
 
@@ -119,7 +119,7 @@ namespace cabin {
 
             renderFrame();
 
-            if (hasImGuiContext) {
+            if (m_hasImGuiContext) {
                 glBindFramebuffer(GL_FRAMEBUFFER, 0);
                 ImGui_ImplOpenGL3_NewFrame();
                 ImGui_ImplGlfw_NewFrame();
@@ -147,7 +147,7 @@ namespace cabin {
     }
 
     void Sandbox::enableImGui() {
-        hasImGuiContext = true;
+        m_hasImGuiContext = true;
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
         ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -187,7 +187,7 @@ namespace cabin {
         glfwSetMouseButtonCallback(window, [](GLFWwindow* window, int button, int action, int mods) {
             auto app = reinterpret_cast<Sandbox*>(glfwGetWindowUserPointer(window));
 
-            if (app->hasImGuiContext && ImGui::GetIO().WantCaptureMouse) {
+            if (app->m_hasImGuiContext && ImGui::GetIO().WantCaptureMouse) {
                 ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
                 return;
             }
