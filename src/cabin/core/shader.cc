@@ -77,7 +77,7 @@ namespace {
                         auto [name, param] = idMacro(line);
                         
                         if (name.empty()) {
-                            throw std::runtime_error("macro syntax error");
+                            throw std::runtime_error("macro identified, but with no name provided");
                         }
                         else if (name == "version") {
                             if (versionMarker.has_value())
