@@ -19,7 +19,6 @@
 #include <glm/ext/matrix_clip_space.hpp>
 
 #include <imgui.h>
-#include <imgui_impl_glfw.h>
 
 #include <cabin/sandbox.h>
 #include <cabin/utils/camera.h>

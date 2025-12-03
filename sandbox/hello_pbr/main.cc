@@ -3,7 +3,6 @@
 #include <glm/ext/matrix_transform.hpp>
 
 #include <imgui.h>
-#include <imgui_impl_glfw.h>
 
 #include <cabin/sandbox.h>
 #include <cabin/utils/model.h>
