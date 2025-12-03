@@ -114,6 +114,9 @@ namespace cabin {
 
     void Sandbox::launch() {
         while (!glfwWindowShouldClose(window)) {
+            if (m_registerdCamera)
+                m_registerdCamera->updateInput(window);
+
             renderFrame();
 
             if (hasImGuiContext) {
@@ -150,6 +153,9 @@ namespace cabin {
         ImGui_ImplGlfw_InitForOpenGL(window, true);
         ImGui_ImplOpenGL3_Init("#version 430");
 
+        /* Disable `imgui.ini` by default */
+        ImGui::GetIO().IniFilename = nullptr;
+
         /* Customize ImGui's Styles and Font */
         applyImGuiStyle();
 
@@ -165,5 +171,29 @@ namespace cabin {
             sizeof(RobotoMonoBoldTTF),
             baseFontSize, &fontCfg
         );
+    }
+
+    void Sandbox::registerCamera(utils::Camera* camera) {
+        if (!camera)
+            throw std::runtime_error("failed to register the camera with a nullptr");
+        
+        m_registerdCamera = camera;
+
+        // Use raw input to prevent twitchy view motion.
+        if (glfwRawMouseMotionSupported())
+            glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+
+        glfwSetWindowUserPointer(window, static_cast<void*>(this));
+        glfwSetMouseButtonCallback(window, [](GLFWwindow* window, int button, int action, int mods) {
+            auto app = reinterpret_cast<Sandbox*>(glfwGetWindowUserPointer(window));
+
+            if (app->hasImGuiContext && ImGui::GetIO().WantCaptureMouse) {
+                ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
+                return;
+            }
+
+            if (app->m_registerdCamera)
+                app->m_registerdCamera->mouseButtonCallback(window, button, action);
+        });
     }
 }

@@ -9,6 +9,7 @@
 #include <string>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include "utils/camera.h"
 #include "utils/console.h"
 
 namespace cabin {
@@ -98,9 +99,27 @@ namespace cabin {
         //! Enable and initialize ImGui context.
         void enableImGui();
 
+        /** Register a camera for current app.
+         *
+         *  This function will handle inputs and ImGui mouse conflict.
+         *
+         * @note Using this method has the following side-effects:
+         
+                1. `glfwMouseButtonCallback` occupied.
+                2. `glfwUserPointer` will be set to `this`.
+                3. `GLFW_RAW_MOUSE_MOTION` will be set, if supported.
+                
+                If you need to add custom logic within the above methods, 
+                please register manually instead of calling this function.
+         */
+        void registerCamera(utils::Camera* camera);
+
     public:
         GLFWwindow* window { nullptr };
         bool hasImGuiContext { false };
+
+    private:
+        utils::Camera* m_registerdCamera { nullptr };
     };
 
 }
