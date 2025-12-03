@@ -117,8 +117,8 @@ namespace cabin::core {
             compType = GL_FLOAT;
             data = stbi_loadf(path.c_str(), &width, &height, &nrChannals, 0);
         } else {
-            compType = GL_UNSIGNED_BYTE;
-            data = stbi_load(path.c_str(), &width, &height, &nrChannals, 0);
+            compType = GL_UNSIGNED_SHORT;
+            data = stbi_load_16(path.c_str(), &width, &height, &nrChannals, 0);
         }
 
         if (!data)
