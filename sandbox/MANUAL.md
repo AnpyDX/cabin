@@ -17,15 +17,18 @@ Then, get [cabin](https://github.com/anpydx/cabin)'s source by `git` or download
 
 ### 2. Create a Sandbox-App
 
-All sandbox-apps are located in `sandbox` directory. The folder inside `sandbox` will be considered as a sandbox-app only if it contains a `xmake.lua`. To make the tutorial  simple, here is a most basic sandbox-app as an example.
+All sandbox-apps are located in `sandbox` directory. The folder inside `sandbox` will be identified as a sandbox-app only if it contains a `xmake.lua`. To make the tutorial  simple, here is a most basic sandbox-app as an example.
 
 A sandbox-app folder will look like this:
 
 ```txt
-|- my_sandbox/
-|   |- xmake.lua
-|   |- main.cc
-|   |- ... (misc, e.g. shaders)
+|- sandbox/
+|   |- my_sandbox/
+|   |   |- main.cc
+|   |   |- xmake.lua
+|   |   |- ... (misc, e.g. shaders)
+|   |
+|   |- ... (other sandbox-apps)
 ```
 
 - `xmake.lua`
