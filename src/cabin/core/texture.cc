@@ -3,6 +3,43 @@
 #include <format>
 #include <stdexcept>
 
+namespace {
+    GLenum getColorFormatSeries(GLenum format) {
+        static const GLenum formatTable[36] = {
+            /* Index:   0 ~ 3 */
+            GL_R,     GL_R8, GL_R8I, GL_R8UI,
+            /* Index:   4 ~ 11 */
+            GL_RG,    GL_RG16, GL_RG16I, GL_RG16UI, GL_RG16F,
+                      GL_RG32I, GL_RG32UI, GL_RG32F,
+            /* Index:   12 ~ 22 */
+            GL_RGB,   GL_RGB8, GL_RGB8I, GL_RGB8UI,
+                      GL_RGB16, GL_RGB16I, GL_RGB16UI, GL_RGB16F,
+                      GL_RGB32I, GL_RGB32F, GL_RGB32UI,
+            /* Index:   23 ~ 30 */
+            GL_RGBA,  GL_RGBA16, GL_RGBA16I, GL_RGBA16UI, GL_RGBA16F, 
+                      GL_RGBA32I, GL_RGBA32UI, GL_RGBA32F,
+
+            /* Index:   31 ~ 35 */
+            GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT16, GL_DEPTH_COMPONENT24, 
+                                GL_DEPTH_COMPONENT32, GL_DEPTH_COMPONENT32F
+        };
+
+        /* TODO: use binary search, dependinig on flags' value order */
+        constexpr size_t tableSize = sizeof(formatTable) / sizeof(GLenum);
+        for (int i = 0; i < tableSize; i++) {
+            if (formatTable[i] == format) {
+                if (i <= 3) return GL_R;
+                if (i <= 11) return GL_RG;
+                if (i <= 22) return GL_RGB;
+                if (i <= 30) return GL_RGBA;
+                if (i <= 35) return GL_DEPTH_COMPONENT;
+            }
+        }
+
+        return GL_FALSE;
+    }
+}
+
 namespace cabin::core {
     Texture::Builder::Builder() {
         glGenTextures(1, &id);
@@ -13,9 +50,16 @@ namespace cabin::core {
         format = internalFormat;
         this->width = width;
         this->height = height;
+
+        GLenum srcFormat = getColorFormatSeries(internalFormat);
+        if (!srcFormat)
+            throw std::runtime_error(
+                "failed to find a source format for provided `internalFormat`, "
+                "please check or use raw OpenGL API to create texture"
+            );
         
         glBindTexture(GL_TEXTURE_2D, id);
-        glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, GL_RGB, GL_FLOAT, nullptr);
+        glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, srcFormat, GL_FLOAT, nullptr);
 
         return *this;
     }
@@ -27,8 +71,15 @@ namespace cabin::core {
         this->height = height;
         this->depth = depth;
 
+        GLenum srcFormat = getColorFormatSeries(internalFormat);
+        if (!srcFormat)
+            throw std::runtime_error(
+                "failed to find a source format for provided `internalFormat`, "
+                "please check or use raw OpenGL API to create texture"
+            );
+
         glBindTexture(GL_TEXTURE_3D, id);
-        glTexImage3D(GL_TEXTURE_3D, 0, internalFormat, width, height, depth, 0, GL_RGB, GL_FLOAT, nullptr);
+        glTexImage3D(GL_TEXTURE_3D, 0, internalFormat, width, height, depth, 0, srcFormat, GL_FLOAT, nullptr);
 
         return *this;
     }
@@ -39,10 +90,17 @@ namespace cabin::core {
         this->width = length;
         this->height = length;
 
+        GLenum srcFormat = getColorFormatSeries(internalFormat);
+        if (!srcFormat)
+            throw std::runtime_error(
+                "failed to find a source format for provided `internalFormat`, "
+                "please check or use raw OpenGL API to create texture"
+            );
+
         glBindTexture(GL_TEXTURE_CUBE_MAP, id);
         for (int i = 0; i < 6; i++) {
             glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internalFormat,
-                         length, length, 0, GL_RGB, GL_FLOAT, nullptr);
+                         length, length, 0, srcFormat, GL_FLOAT, nullptr);
         }
 
         return *this;
