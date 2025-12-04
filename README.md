@@ -6,8 +6,6 @@
 
 ![hello_pbr](showcase/hello_pbr_1.jpg)
 
-For the manual and more samples, please check sandbox [page](sandbox).
-
 ## Features
 
 - OpenGL wrappers with Builder Pattern.
@@ -48,11 +46,13 @@ xmake config -m release
 xmake build
 ```
 
-2. Run sandbox by specifying its name (check [sandbox-list](sandbox)):
+2. Run sandbox by specifying its name (e.g. `hello_triangle`):
 
 ```bash
 xmake run <target>
 ```
+
+For the manual and more samples, please check [sandbox](sandbox) page.
 
 ## Structure
 
