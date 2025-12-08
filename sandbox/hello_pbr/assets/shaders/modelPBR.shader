@@ -54,19 +54,21 @@ uniform samplerCube prefilterMap;
 uniform sampler2D BRDFLUTMap;
 
 vec3 getNormalFromMap() {
-    vec3 tangentNormal = texture(normalTexture, vTexCoord).rgb * 2.0 - 1.0;
+    vec3 tangentSpaceNormal = texture2D(normalTexture, vTexCoord).rgb;
+    tangentSpaceNormal = 2.0 * tangentSpaceNormal - 1.0;
 
-    vec3 Q1  = dFdx(vPosition);
-    vec3 Q2  = dFdy(vPosition);
-    vec2 st1 = dFdx(vTexCoord);
-    vec2 st2 = dFdy(vTexCoord);
+    vec3 E1 = dFdx(vPosition);
+    vec3 E2 = dFdy(vPosition);
+    vec2 T1 = dFdx(vTexCoord);
+    vec2 T2 = dFdy(vTexCoord);
 
-    vec3 N   = normalize(vNormal);
-    vec3 T  = normalize(Q1*st2.t - Q2*st1.t);
-    vec3 B  = -normalize(cross(N, T));
+    vec3 N = normalize(vNormal);
+    vec3 T = (T1.x * T2.y - T2.x * T1.y) * (T2.y * E1 - T1.y * E2);
+    T = normalize(T - dot(T, N) * N);
+    vec3 B = normalize(cross(N, T));
+
     mat3 TBN = mat3(T, B, N);
-
-    return normalize(TBN * tangentNormal);
+    return normalize(TBN * tangentSpaceNormal);
 }
 
 void main() {
