@@ -10,6 +10,7 @@
 #include "cabin/core/texture.h"
 #include "cabin/core/vertexbuffer.h"
 
+#define TINYGLTF_NO_STB_IMAGE
 #define TINYGLTF_NO_STB_IMAGE_WRITE
 #define TINYGLTF_NO_INCLUDE_STB_IMAGE
 #define TINYGLTF_NO_INCLUDE_STB_IMAGE_WRITE
@@ -48,7 +49,7 @@ namespace cabin::utils {
     public:
         class Builder {
         public:
-            Builder() = default;
+            Builder();
             Builder(Builder&&) = delete;
             Builder(const Builder&) = delete;
 
@@ -64,6 +65,8 @@ namespace cabin::utils {
             size_t loadTexture(int textureIndex);
 
         private:
+            tinygltf::TinyGLTF m_loader {};
+            
             tinygltf::Model m_model {};
             std::vector<Mesh> m_meshes {};
             std::vector<core::Texture> m_textures {};

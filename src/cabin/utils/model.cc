@@ -17,12 +17,73 @@ namespace {
 }
 
 namespace cabin::utils {
+    Model::Builder::Builder() {
+        m_loader.SetImageLoader([](
+            tinygltf::Image* image, const int imageIndex,
+            std::string* errorMsg, std::string* warnMsg,
+            int requestWidth, int requestHeight,
+            const unsigned char* bytes, int size, 
+            void* userData
+        ) -> bool {
+            int bits = 8;
+            int storageType = TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE;
+
+            if (stbi_is_16_bit_from_memory(bytes, size)) {
+                bits = 16;
+                storageType = TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT;
+            }
+
+            uint8_t* data = nullptr;
+            int width, height, channels;
+
+            stbi_set_flip_vertically_on_load(false);
+
+            if (bits == 16)
+                data = reinterpret_cast<uint8_t*>(
+                    stbi_load_16_from_memory(bytes, size, &width, &height, &channels, 0)
+                );
+            else
+                data = stbi_load_from_memory(bytes, size, &width, &height, &channels, 0);
+
+            if (!data) {
+                errorMsg->append(std::format("stb_image failed to load: \"{}\"", image->name));
+                return false;
+            }
+
+            if ((width < 1) || (height < 1)) {
+                errorMsg->append(std::format("invalid size of image: \"{}\"", image->name));
+                return false;
+            }
+
+            if ((requestWidth > 0) && (requestWidth != width)) {
+                errorMsg->append(std::format("dismatched width of image: \"{}\"", image->name));
+                return false;
+            }
+
+            if ((requestHeight > 0) && (requestHeight != height)) {
+                errorMsg->append(std::format("dismatched height of image: \"{}\"", image->name));
+                return false;
+            }
+
+            image->width = width;
+            image->height = height;
+            image->component = channels;
+            image->bits = bits;
+            image->pixel_type = storageType;
+            image->as_is = false;
+
+            image->image.resize(static_cast<size_t>(width * height * channels) * size_t(bits / 8));
+            std::copy(data, data + image->image.size(), image->image.begin());
+
+            return true;
+        }, nullptr);
+    }
+
     Model::Builder& Model::Builder::fromGLB(const std::string& path) {
         Console::info(std::format("loading glb model: \"{}\"", path));
 
-        tinygltf::TinyGLTF loader {};
         std::string loadError {}, loadWarn {};
-        bool res = loader.LoadBinaryFromFile(&m_model, &loadError, &loadWarn, path);
+        bool res = m_loader.LoadBinaryFromFile(&m_model, &loadError, &loadWarn, path);
 
         if (!loadWarn.empty())
             Console::info(std::format("warning: {}", loadWarn));
@@ -36,9 +97,8 @@ namespace cabin::utils {
     Model::Builder& Model::Builder::fromGLTF(const std::string& path) {
         Console::info(std::format("loading glTF model: \"{}\"", path));
 
-        tinygltf::TinyGLTF loader {};
         std::string loadError {}, loadWarn {};
-        bool res = loader.LoadASCIIFromFile(&m_model, &loadError, &loadWarn, path);
+        bool res = m_loader.LoadASCIIFromFile(&m_model, &loadError, &loadWarn, path);
 
         if (!loadWarn.empty())
             Console::info(std::format("warning: {}", loadWarn));
@@ -104,7 +164,15 @@ namespace cabin::utils {
     void Model::Builder::loadMesh(const tinygltf::Mesh& mesh, const glm::mat4& transform) {
         Mesh result (mesh.primitives.size());
         for (size_t i = 0; i < mesh.primitives.size(); i++) {
+            const std::string meshName = mesh.name.empty() ? "_" : mesh.name;
+            
             const tinygltf::Primitive& primitive = mesh.primitives[i];
+
+            // Check drawing mode
+            if (primitive.mode != GL_TRIANGLES)
+                throw std::runtime_error(std::format(
+                                "unspported topology type in mesh \"{}\", which is not GL_TRIANGLES", meshName
+                            ));
 
             /* Attributes */
             static const char* requireAttributes[] = {
@@ -117,62 +185,79 @@ namespace cabin::utils {
                         );
             }
 
-            auto fetchBufferPointer = [&](int accessorIndex, int type, int comp, size_t count) -> std::optional<void*> {
+            auto fetchBuffer = [&](int accessorIndex, int type, int comp, size_t count) -> std::pair<uint8_t*, size_t> {
                 indexChecker(m_model.accessors, accessorIndex);
                 tinygltf::Accessor& accessor = m_model.accessors[accessorIndex];
                 tinygltf::BufferView& bufferView = m_model.bufferViews[accessor.bufferView];
                 tinygltf::Buffer& buffer = m_model.buffers[bufferView.buffer];
 
                 if (accessor.type != type || accessor.componentType != comp || accessor.count != count)
-                    return {};
+                    return { nullptr, 0 };
 
-                return reinterpret_cast<void*>(buffer.data.data() + bufferView.byteOffset);
+                size_t stride = bufferView.byteStride;
+                if (stride == 0) {
+                    size_t compSize = 0, compCount = 0;
+
+                    switch (type) {
+                        case TINYGLTF_TYPE_SCALAR: compCount = 1; break;
+                        case TINYGLTF_TYPE_VEC2: compCount = 2; break;
+                        case TINYGLTF_TYPE_VEC3: compCount = 3; break;
+                        case TINYGLTF_TYPE_VEC4: compCount = 4; break;
+                        default: return { nullptr, 0 };
+                    }
+
+                    switch (comp) {
+                        case TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT: compSize = sizeof(unsigned int); break;
+                        case TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE: compSize = sizeof(unsigned char); break;
+                        case TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT: compSize = sizeof(unsigned short); break;
+                        case TINYGLTF_COMPONENT_TYPE_FLOAT: compSize = sizeof(float); break;
+                        default: return { nullptr, 0 };
+                    }
+
+                    stride = compSize * compCount;
+                }
+
+                return { buffer.data.data() + (bufferView.byteOffset + accessor.byteOffset), stride };
             };
 
             size_t vertexCount = m_model.accessors[primitive.attributes.at("POSITION")].count;
-            glm::vec3* positionBufferPtr, *normalBufferPtr;
-            glm::vec2* texCoordBufferPtr;
-
-            std::optional<void*> bufferFetchRes {};
             
             // Position
-            bufferFetchRes = fetchBufferPointer(primitive.attributes.at("POSITION"), 
-                                                TINYGLTF_TYPE_VEC3, TINYGLTF_COMPONENT_TYPE_FLOAT, vertexCount);
-            if (bufferFetchRes.has_value())
-                positionBufferPtr = reinterpret_cast<glm::vec3*>(bufferFetchRes.value());
-            else
+            auto [positionData, positionStride] = \
+                                fetchBuffer(primitive.attributes.at("POSITION"), 
+                                            TINYGLTF_TYPE_VEC3, TINYGLTF_COMPONENT_TYPE_FLOAT, vertexCount);
+            if (!positionData)
                 throw std::runtime_error(std::format(
-                                "found invalid \"primitive.attribute.POSITION\". Require( VEC3, FLOAT, {} )", 
-                                 vertexCount
+                                "found invalid \"primitive.attribute.POSITION\" in mesh \"{}\". Expected {{ type: vec<float, 3>, count: {} }}", 
+                                meshName, vertexCount
                             ));
             
             // Normal
-            bufferFetchRes = fetchBufferPointer(primitive.attributes.at("NORMAL"), 
-                                                TINYGLTF_TYPE_VEC3, TINYGLTF_COMPONENT_TYPE_FLOAT, vertexCount);
-            if (bufferFetchRes.has_value())
-                normalBufferPtr = reinterpret_cast<glm::vec3*>(bufferFetchRes.value());
-            else
+            auto [normalData, normalStride] = \
+                                fetchBuffer(primitive.attributes.at("NORMAL"), 
+                                            TINYGLTF_TYPE_VEC3, TINYGLTF_COMPONENT_TYPE_FLOAT, vertexCount);
+            if (!normalData)
                 throw std::runtime_error(std::format(
-                                "found invalid \"primitive.attribute.NORMAL\". Require( VEC3, FLOAT, {} )", 
-                                 vertexCount
+                                "found invalid \"primitive.attribute.NORMAL\" in mesh \"{}\". Expected {{ type: vec<float, 3>, count: {} }}", 
+                                meshName, vertexCount
                             ));
 
             // TexCoord
-            bufferFetchRes = fetchBufferPointer(primitive.attributes.at("TEXCOORD_0"), 
-                                                TINYGLTF_TYPE_VEC2, TINYGLTF_COMPONENT_TYPE_FLOAT, vertexCount);
-            if (bufferFetchRes.has_value())
-                texCoordBufferPtr = reinterpret_cast<glm::vec2*>(bufferFetchRes.value());
-            else
+            auto [texCoordData, texCoordStride] = \
+                                fetchBuffer(primitive.attributes.at("TEXCOORD_0"), 
+                                            TINYGLTF_TYPE_VEC2, TINYGLTF_COMPONENT_TYPE_FLOAT, vertexCount);
+            if (!texCoordData)
                 throw std::runtime_error(std::format(
-                                "found invalid \"primitive.attribute.TEXCOORD_0\". Require( VEC2, FLOAT, {} )", 
-                                 vertexCount
+                                "found invalid \"primitive.attribute.TEXCOORD_0\" in mesh \"{}\". Expected {{ type: vec<float, 2>, count: {} }}", 
+                                meshName, vertexCount
                             ));
 
             std::vector<Vertex> vertices(vertexCount);
             for (size_t j = 0; j < vertexCount; j++) {
-                vertices[j].position = glm::vec3(glm::vec4(positionBufferPtr[j], 1.0f) * transform);
-                vertices[j].normal = normalBufferPtr[j];
-                vertices[j].texCoord = texCoordBufferPtr[j];
+                vertices[j].position = *reinterpret_cast<glm::vec3*>(positionData + j * positionStride);
+                vertices[j].position = glm::vec3(glm::vec4(vertices[j].position, 1.0) * transform);
+                vertices[j].normal = *reinterpret_cast<glm::vec3*>(normalData + j * normalStride);
+                vertices[j].texCoord = *reinterpret_cast<glm::vec2*>(texCoordData + j * texCoordStride);
             }
             result[i].vertices = core::VertexBuffer::Builder()
                                         .setBuffer(vertices.data(), vertices.size() * sizeof(Vertex), GL_STATIC_DRAW)
@@ -185,25 +270,29 @@ namespace cabin::utils {
             size_t indexCount = m_model.accessors[primitive.indices].count;
             std::vector<unsigned int> indices (indexCount);
 
-            static const int supportedIndexType[2] = {
+            static const int supportedIndexType[3] = {
+                TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE,
+                TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT,
                 TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT,
-                TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT
             };
 
             bool hasIndices = false;
-            for (int j = 0; j < 2; j++) {
-                bufferFetchRes = fetchBufferPointer(primitive.indices, 
-                                    TINYGLTF_TYPE_SCALAR, supportedIndexType[j], indexCount);
-                if (bufferFetchRes.has_value()) {
-                    if (supportedIndexType[j] == TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT) {
-                        auto bufferPtr = reinterpret_cast<unsigned int*>(bufferFetchRes.value());
+            for (int j = 0; j < 3; j++) {
+                auto [indicesData, indicesStride] = \
+                                    fetchBuffer(primitive.indices, 
+                                                TINYGLTF_TYPE_SCALAR, supportedIndexType[j], indexCount);
+                if (indicesData) {
+                    if (supportedIndexType[j] == TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE) {
                         for (size_t k = 0; k < indexCount; k++)
-                            indices[k] = bufferPtr[k];
+                            indices[k] = *(indicesData + k * indicesStride);
+                    }
+                    else if (supportedIndexType[j] == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT) {
+                        for (size_t k = 0; k < indexCount; k++)
+                            indices[k] = *reinterpret_cast<unsigned short*>(indicesData + k * indicesStride);
                     }
                     else {
-                        auto bufferPtr = reinterpret_cast<unsigned short*>(bufferFetchRes.value());
                         for (size_t k = 0; k < indexCount; k++)
-                            indices[k] = bufferPtr[k];
+                            indices[k] = *reinterpret_cast<unsigned int*>(indicesData + k * indicesStride);;
                     }
                     hasIndices = true;
                     break;
@@ -211,7 +300,10 @@ namespace cabin::utils {
             }
 
             if (!hasIndices)
-                throw std::runtime_error("invalid \"primitive's indices\". Require( SCALAR, UINT | USHORT )");
+                throw std::runtime_error(std::format(
+                            "invalid \"primitive's indices\" in mesh \"{}\". Expected {{ type: uint8 | uint16 | uint32, count: {} }}",
+                            meshName, indexCount
+                        ));
 
             result[i].indices.swap(indices);
 
