@@ -50,7 +50,7 @@ public:
 
         m_cube = utils::Shape::Builder().asCube().build();
 
-        m_coffeeCartModel = utils::Model::Builder().fromGLB("assets/models/CoffeeCart.glb").build();
+        m_helmetModel = utils::Model::Builder().fromGLB("assets/models/FlightHelmet.glb").build();
 
         lightPositions = {
             { "lightPositions[0]", {} },
@@ -286,8 +286,8 @@ public:
         else {
             glm::mat4 model { 1.0f };
             model = glm::translate(model, glm::vec3(0.0, -1.0, 0.0));
-            model = glm::rotate(model, glm::radians(coffeeCartRotationAngle), glm::vec3(0.0f, 1.0f, 0.0f));
-            model = glm::scale(model, glm::vec3(coffeeCartScaleFactor));
+            model = glm::rotate(model, glm::radians(modelRotationAngle), glm::vec3(0.0f, 1.0f, 0.0f));
+            model = glm::scale(model, glm::vec3(modelScaleFactor));
 
             glm::mat3 normalMatrix = glm::mat3(model);
             normalMatrix = glm::transpose(glm::inverse(normalMatrix));
@@ -311,11 +311,11 @@ public:
                 m_modelPBRShader.setVec3(name, value);
             }
 
-            m_coffeeCartModel.draw(m_modelPBRShader);
-            if (rotateCoffeeCartModel) {
-                coffeeCartRotationAngle += coffeeCartRotationSpeed;
-                if (coffeeCartRotationAngle >= 360.0f)
-                    coffeeCartRotationAngle = 0.0f;
+            m_helmetModel.draw(m_modelPBRShader);
+            if (modelRotated) {
+                modelRotationAngle += modelRotationSpeed;
+                if (modelRotationAngle >= 360.0f)
+                    modelRotationAngle = 0.0f;
             }
         }
 
@@ -368,7 +368,7 @@ public:
 
 
             ImGui::SeparatorText("Scene");
-            static const char* scenes[] = { "Spheres", "Material Sandbox", "Coffee Cart" };
+            static const char* scenes[] = { "Spheres", "Material Sandbox", "Flight Helmet" };
             ImGui::Combo("Scene", &sceneIndex, scenes, IM_ARRAYSIZE(scenes));
 
             if (sceneIndex == 0) {
@@ -395,14 +395,14 @@ public:
             }
 
             else if (sceneIndex == 2) {
-                ImGui::Text("- Coffee Cart Settings");
-                ImGui::InputFloat("Scale##2", &coffeeCartScaleFactor, 0.1f);
+                ImGui::Text("- Model Settings");
+                ImGui::InputFloat("Scale##2", &modelScaleFactor, 0.1f);
                 
-                ImGui::Checkbox("Rotate##2", &rotateCoffeeCartModel);
-                ImGui::InputFloat("Rotate speed##2", &coffeeCartRotationSpeed, 0.1f);
+                ImGui::Checkbox("Rotate##2", &modelRotated);
+                ImGui::InputFloat("Rotate speed##2", &modelRotationSpeed, 0.1f);
 
-                coffeeCartScaleFactor = glm::clamp(coffeeCartScaleFactor, 0.1f, 10.0f);
-                coffeeCartRotationSpeed = glm::clamp(coffeeCartRotationSpeed, 0.1f, 10.0f);
+                modelScaleFactor = glm::clamp(modelScaleFactor, 0.1f, 10.0f);
+                modelRotationSpeed = glm::clamp(modelRotationSpeed, 0.1f, 10.0f);
             }
         }
         ImGui::End();
@@ -436,11 +436,11 @@ private:
     glm::vec3 mtBaseColor { 0.5f };
     glm::vec3 mtORM { 1.0f, 0.5f, 0.5f };
 
-    // Coffee Cart Model Settings
-    bool  rotateCoffeeCartModel = false;
-    float coffeeCartScaleFactor = 1.0f;
-    float coffeeCartRotationSpeed = 1.0f;
-    float coffeeCartRotationAngle = 0.0f;
+    //  Model Settings
+    bool  modelRotated = false;
+    float modelScaleFactor = 1.0f;
+    float modelRotationSpeed = 1.0f;
+    float modelRotationAngle = 0.0f;
     
 private:
     utils::Camera m_camera {
@@ -450,8 +450,7 @@ private:
     };
     utils::Shape m_cube {};
     utils::Shape m_sphere {};
-    utils::Model m_sponzaModel {};
-    utils::Model m_coffeeCartModel {};
+    utils::Model m_helmetModel {};
 
     core::Shader m_et2cubeShader {};
     core::Shader m_irradianceShader {};

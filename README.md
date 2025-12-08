@@ -74,8 +74,8 @@ For the manual and more samples, please check [sandbox](sandbox) page.
 
 ### Assets
 
-- **Coffee Cart**: <https://polyhaven.com/a/CoffeeCart_01>
 - **Roboto Mono**: <https://github.com/notofonts/latin-greek-cyrillic>
+- **Flight Helmet**: <https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/FlightHelmet>
 
 ## References
 
