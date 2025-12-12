@@ -63,7 +63,7 @@ vec3 getNormalFromMap() {
     vec2 T2 = dFdy(vTexCoord);
 
     vec3 N = normalize(vNormal);
-    vec3 T = (T1.x * T2.y - T2.x * T1.y) * (T2.y * E1 - T1.y * E2);
+    vec3 T = (T2.x * T1.y - T1.x * T2.y) * (T1.y * E2 - T2.y * E1);
     T = normalize(T - dot(T, N) * N);
     vec3 B = normalize(cross(N, T));
 
