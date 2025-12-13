@@ -291,6 +291,11 @@ namespace cabin::core {
         return *this;
     }
 
+    Shader::Builder& Shader::Builder::addDefinition(const std::string& name, const std::string& value) {
+        m_definitions.append(std::format("#define {} {}\n", name, value));
+        return *this;
+    }
+
     Shader Shader::Builder::build() {
         // 1. Parse source into different stages
         std::string version, vertex, geometory, fragment;
@@ -302,6 +307,9 @@ namespace cabin::core {
         vertex.swap(processResult.vertex);
         geometory.swap(processResult.geometory);
         fragment.swap(processResult.fragment);
+        
+        version.append("\n");
+        version.append(m_definitions);
         version.append("\n");
         
         // 2. Create shader program object

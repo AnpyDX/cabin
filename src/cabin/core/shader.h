@@ -27,11 +27,15 @@ namespace cabin::core {
              */
             Builder& fromFile(const std::string& path);
 
+            //! Add a macro definition to shader.
+            Builder& addDefinition(const std::string& name, const std::string& value = "");
+
             Shader build();
 
         private:
             GLuint id;
             std::string m_filePath {};
+            std::string m_definitions {};
         };
 
     public:
