@@ -1,6 +1,6 @@
 # Cabin
 
-**Cabin** is a grahpics sandbox framework based on OpenGL.
+**Cabin** is a grahpics sandbox framework based on OpenGL, allowing quick prototype development.
 
 ## Showcase
 
@@ -26,7 +26,16 @@ auto vertexBuffer = core::VertexBuffer::Builder()
                             .build();
 ```
 
-- Utilities objects (e.g. FPS-style Camera and glTF-model Loader).
+- Built-in utilities:
+  - FPS-style Camera
+  - glTF/glb Model
+  - Shapes Generator (e.g. Shpere, Cube)
+  - Integrated ImGui
+
+- Convenient shader:
+  - Three stages written in single `.shader` file
+  - Nice and clear compile error display
+  - Integrated macro independent from GLSL
 
 ## Requirements
 
