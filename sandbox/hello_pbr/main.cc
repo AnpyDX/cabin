@@ -13,7 +13,7 @@
 #include <cabin/core/framebuffer.h>
 using namespace cabin;
 
-const int ENVIRONMENT_RESOLUTION = 2048;
+const int ENVIRONMENT_RESOLUTION = 1024;
 
 class HelloPBR: public Sandbox {
 public:
