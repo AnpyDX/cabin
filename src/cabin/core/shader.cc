@@ -52,9 +52,13 @@ namespace {
                 throw std::runtime_error("failed to open shader file.");
 
             m_sourceContent << sourceFile.rdbuf();
-            m_baseDirectory = std::filesystem::path(path).parent_path().string();
-            m_entryFileName = std::filesystem::path(path).filename().string();
-            m_blockFileStack = { std::format("{}/{}", m_baseDirectory, m_entryFileName) };
+            m_baseDirectory = std::filesystem::path(path).has_parent_path() ? 
+                                // Use parent path if provided.
+                                std::filesystem::absolute(std::filesystem::path(path).parent_path()) :
+                                // Otherwise use executable located dir (aka. ".").
+                                std::filesystem::absolute(std::filesystem::path("."));
+            m_entryFilePath = m_baseDirectory / std::filesystem::path(path).filename();
+            m_blockFileStack = { m_entryFilePath };
         }
 
         Result process() {
@@ -143,7 +147,7 @@ namespace {
             } catch (const std::exception& e) {
                 throw std::runtime_error(std::format(
                     "failed to parse shader \"{}\", at line {}: \n    \"{}\"\n  error: {}.",
-                    m_entryFileName, lineNumber, line, e.what()
+                    m_entryFilePath.filename().string(), lineNumber, line, e.what()
                 ));
             }
             
@@ -156,17 +160,17 @@ namespace {
 
             m_blockFileStack.erase(m_blockFileStack.begin() + 1, m_blockFileStack.end());
             if (vertexMarker.has_value())
-                processResult.vertex = processBlock(vertexBlock, m_entryFileName, vertexMarker.value());
+                processResult.vertex = processBlock(vertexBlock, m_entryFilePath, vertexMarker.value());
             else
                 throw std::runtime_error("necessary \"vertex\" block is missing.");
 
             m_blockFileStack.erase(m_blockFileStack.begin() + 1, m_blockFileStack.end());
             if (geometoryMarker.has_value())
-                processResult.geometory = processBlock(geometoryBlock, m_entryFileName, geometoryMarker.value());
+                processResult.geometory = processBlock(geometoryBlock, m_entryFilePath, geometoryMarker.value());
 
             m_blockFileStack.erase(m_blockFileStack.begin() + 1, m_blockFileStack.end());
             if (fragmentMarker.has_value())
-                processResult.fragment = processBlock(fragmentBlock, m_entryFileName, fragmentMarker.value());
+                processResult.fragment = processBlock(fragmentBlock, m_entryFilePath, fragmentMarker.value());
             else
                 throw std::runtime_error("necessary \"fragment\" block is missing.");
 
@@ -174,11 +178,13 @@ namespace {
         }
 
     private:
-        std::string processBlock(const std::string& raw, const std::string& fileName, size_t lineOffset) {
+        std::string processBlock(const std::string& rawContent, const std::filesystem::path& workFilePath, size_t lineOffset) {
             std::string result {};
 
+            std::string workFileName = workFilePath.filename().string();
+
             std::stringstream rawStream {};
-            rawStream << raw;
+            rawStream << rawContent;
 
             std::string line {};
             size_t lineNumber = lineOffset;
@@ -197,17 +203,18 @@ namespace {
                             if (param.empty())
                                 throw std::runtime_error("macro \"use\" requires a path as parameter. (helps: \"#![use(\"...\")]\")");
 
-                            std::string absolutePath = std::format("{}/{}", m_baseDirectory, param);
-                            absolutePath = std::filesystem::absolute(absolutePath).string();
+                            auto absolutePath = std::filesystem::path(param).has_parent_path() ?
+                                                    std::filesystem::absolute(param) :
+                                                    m_baseDirectory / std::filesystem::path(param);
 
                             // Prevent self-use
-                            if (absolutePath == std::filesystem::absolute(std::format("{}/{}", m_baseDirectory, fileName))) {
+                            if (absolutePath == workFileName) {
                                 throw std::runtime_error("self-use detected");
                             }
 
                             // Prevent multi-use
                             if (std::find(m_blockFileStack.begin(), m_blockFileStack.end(), absolutePath) != m_blockFileStack.end()) {
-                                cabin::utils::Console::info(std::format("muti-use file detected in \"{}\", line {}; ignored.", fileName, lineNumber));\
+                                cabin::utils::Console::info(std::format("muti-use file detected in \"{}\", line {}; ignored.", workFileName, lineNumber));\
                                 continue;
                             }
 
@@ -220,7 +227,7 @@ namespace {
 
                             m_blockFileStack.push_back(absolutePath);
                             result.append(std::format("// ------------- BEGIN QUOTE, FROM {} -------------\n", param));
-                            result.append(processBlock(usedStream.str(), param, 0));
+                            result.append(processBlock(usedStream.str(), absolutePath, 0));
                             result.append(std::format("// -------------  END QUOTE, FROM {} -------------\n", param));
                         }
                         else {
@@ -240,7 +247,7 @@ namespace {
             } catch (const std::exception& e) {
                 throw std::runtime_error(std::format(
                     "failed to parse shader block, in \"{}\", at line {}: \n    \"{}\"\n  error: {}",
-                    fileName, lineNumber, line, e.what()
+                    workFileName, lineNumber, line, e.what()
                 ));
             }
 
@@ -267,14 +274,14 @@ namespace {
 
     private:
         std::stringstream m_sourceContent {};
-        std::string m_baseDirectory {};
-        std::string m_entryFileName {};
+        std::filesystem::path m_baseDirectory {};
+        std::filesystem::path m_entryFilePath {};
 
-        std::vector<std::string> m_blockFileStack {};
+        std::vector<std::filesystem::path> m_blockFileStack {};
 
         std::regex m_macroRe { R"(^\s*#![\S\s]*$)" }; 
         std::regex m_hintMacroRe { R"(^\s*#!\[\s*(\w+)\s*\]$)" };
-        std::regex m_declMacroRe { R"(^\s*#!\[\s*(\w+)\s*\(\s*\"([\w\s\.\\//]*)\"\s*\)\s*\]$)"};
+        std::regex m_declMacroRe { R"(^\s*#!\[\s*(\w+)\s*\(\s*\"([\w\s\.\\//:]*)\"\s*\)\s*\]$)"};
     };
 }
 
