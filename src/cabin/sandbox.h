@@ -7,7 +7,7 @@
 
 #pragma once
 #include <string>
-#include <glad/glad.h>
+#include <glad/gl.h>
 #include <GLFW/glfw3.h>
 #include "utils/camera.h"
 #include "utils/console.h"

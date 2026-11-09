@@ -3,7 +3,7 @@
 
 #include <cmath>
 #include <utility>
-#include <glad/glad.h>
+#include <glad/gl.h>
 #include <glm/geometric.hpp>
 #include <glm/ext/scalar_constants.hpp>
 

@@ -9,7 +9,7 @@
 #include <string>
 #include <optional>
 
-#include <glad/glad.h>
+#include <glad/gl.h>
 #include <glm/glm.hpp>
 #include <stb/stb_image.h>
 

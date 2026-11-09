@@ -9,7 +9,7 @@
 #include <vector>
 #include <optional>
 
-#include <glad/glad.h>
+#include <glad/gl.h>
 
 namespace cabin::core {
     

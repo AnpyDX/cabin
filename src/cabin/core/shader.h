@@ -9,7 +9,7 @@
 #include <string>
 #include <optional>
 #include <glm/glm.hpp>
-#include <glad/glad.h>
+#include <glad/gl.h>
 
 namespace cabin::core {
 

@@ -1,4 +1,5 @@
 #include "sandbox.h"
+#include "cabin/utils/console.h"
 
 #include <string>
 #include <stdexcept>
@@ -87,10 +88,19 @@ namespace cabin {
         glfwMakeContextCurrent(window);
 
         // OpenGL context creation.
-        if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+        int loadedGLVersion = gladLoadGL(glfwGetProcAddress);
+        if (0 == loadedGLVersion) {
             glfwTerminate();
             throw std::runtime_error("failed to initialize OpenGL context!");
         }
+
+        utils::Console::info(
+            std::format(
+                "OpenGL {}.{} context initialized.", 
+                GLAD_VERSION_MAJOR(loadedGLVersion), 
+                GLAD_VERSION_MINOR(loadedGLVersion)
+            )
+        );
 
         glfwSetFramebufferSizeCallback(window, [](GLFWwindow* window, int width, int height) {
             glViewport(0, 0, width, height);

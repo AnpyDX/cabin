@@ -7,7 +7,7 @@
 
 #pragma once
 #include <optional>
-#include <glad/glad.h>
+#include <glad/gl.h>
 
 namespace cabin::core {
     class FrameBuffer {
