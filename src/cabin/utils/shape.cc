@@ -159,7 +159,7 @@ namespace cabin::utils {
         return *this;
     }
 
-    Shape::Builder& Shape::Builder::asShpere(float radius, uint32_t division) {
+    Shape::Builder& Shape::Builder::asSphere(float radius, uint32_t division) {
         constexpr float PI = glm::pi<float>();
 
         /* Vertices */

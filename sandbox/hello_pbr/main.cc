@@ -46,7 +46,7 @@ public:
                             .fromFile("assets/shaders/skybox.shader")
                             .build();
 
-        m_sphere = utils::Shape::Builder().asShpere(1.0, 64).build();
+        m_sphere = utils::Shape::Builder().asSphere(1.0, 64).build();
 
         m_cube = utils::Shape::Builder().asCube().build();
 

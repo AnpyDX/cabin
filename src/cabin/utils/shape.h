@@ -42,14 +42,14 @@ namespace cabin::utils {
              */
             Builder& asPlane(glm::vec2 size, glm::vec<2, int> division);
 
-            /** Create the shape as a plane.
+            /** Create the shape as a sphere.
              * @note Default parameters:
-             * - Ceneter at (0, 0, 0).
+             * - Center at (0, 0, 0).
              * 
              * @param radius   The radius of sphere.
              * @param division The division level, or the number of divided parts.
              */
-            Builder& asShpere(float radius, uint32_t division = 32);
+            Builder& asSphere(float radius, uint32_t division = 32);
 
             Shape build();
 
