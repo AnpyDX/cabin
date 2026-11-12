@@ -152,6 +152,12 @@ namespace cabin {
         return { width, height };
     }
 
+    std::tuple<int, int> Sandbox::getFramebufferSize() {
+        int width, height;
+        glfwGetFramebufferSize(window, &width, &height);
+        return { width, height };
+    }
+
     void Sandbox::setWindowResizable(bool enable) {
         glfwSetWindowAttrib(window, GLFW_RESIZABLE, enable);
     }

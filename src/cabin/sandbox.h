@@ -89,9 +89,15 @@ namespace cabin {
 
         /** Get the size of window.
          *
-         * @note e.g. `auto [w, h] = getWindowSize();`
+         * @note usage: `auto [w, h] = getWindowSize();`
          */
         std::tuple<int, int> getWindowSize();
+
+        /** Get the size of Framebuffer.
+         * 
+         * @note usage: `auto [w, h] = getFramebufferSize();`
+         */
+        std::tuple<int, int> getFramebufferSize();
 
         //! Set whether window is resizable.
         void setWindowResizable(bool enable);
