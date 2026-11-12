@@ -191,7 +191,7 @@ public:
 
         // Resize viewport to window's size
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        auto [w, h] = getWindowSize();
+        auto [w, h] = getFramebufferSize();
         glViewport(0, 0, w, h);
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_MULTISAMPLE);

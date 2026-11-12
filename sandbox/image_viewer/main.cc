@@ -136,7 +136,7 @@ public:
 
         m_square.draw();
 
-        auto [width, height] = getWindowSize();
+        auto [width, height] = getFramebufferSize();
         glViewport(0, 0, width, height);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
