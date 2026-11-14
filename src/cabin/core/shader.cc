@@ -203,9 +203,10 @@ namespace {
                             if (param.empty())
                                 throw std::runtime_error("macro \"use\" requires a path as parameter. (helps: \"#![use(\"...\")]\")");
 
-                            auto absolutePath = std::filesystem::path(param).has_parent_path() ?
-                                                    std::filesystem::absolute(param) :
-                                                    m_baseDirectory / std::filesystem::path(param);
+                            auto absolutePath = std::filesystem::path(param);
+                            if (!absolutePath.has_parent_path() || absolutePath.is_relative()) {
+                                absolutePath = workFilePath.parent_path() / std::filesystem::path(param);
+                            }
 
                             // Prevent self-use
                             if (absolutePath == workFileName) {
