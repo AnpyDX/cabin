@@ -1,7 +1,6 @@
 #include "shader.h"
 
 #include <regex>
-#include <format>
 #include <fstream>
 #include <stdexcept>
 #include <filesystem>
@@ -46,7 +45,12 @@ namespace {
         };
 
     public:
-        ShaderProcesser(const std::string& path) {
+        ShaderProcesser(
+            const std::string& path, 
+            std::unordered_map<std::string, std::pair<std::string, std::string>>& constants
+        )
+        : m_constants(constants)
+        {
             std::ifstream sourceFile(path);
             if (!sourceFile.is_open())
                 throw std::runtime_error("failed to open shader file.");
@@ -201,7 +205,7 @@ namespace {
                         }
                         else if (name == "use") {
                             if (param.empty())
-                                throw std::runtime_error("macro \"use\" requires a path as parameter. (helps: \"#![use(\"...\")]\")");
+                                throw std::runtime_error("macro \"use\" requires a path as parameter. (usage: \"#![use(\"...\")]\")");
 
                             auto absolutePath = std::filesystem::path(param);
                             if (!absolutePath.has_parent_path() || absolutePath.is_relative()) {
@@ -230,6 +234,38 @@ namespace {
                             result.append(std::format("// ------------- BEGIN QUOTE, FROM {} -------------\n", param));
                             result.append(processBlock(usedStream.str(), absolutePath, 0));
                             result.append(std::format("// -------------  END QUOTE, FROM {} -------------\n", param));
+                        }
+                        else if (name.starts_with("const")) {
+                            auto helperFn = [this, &param, &result](const std::string& type) {
+                                if (!m_constants.count(param)) {
+                                    throw std::runtime_error(
+                                        std::format(
+                                            "constant <T = {}> \"{}\" is required, which is not provided! (hint: use `Shader::Builder::setConstant`)",
+                                            type, param
+                                        )
+                                    );
+                                }
+
+                                const auto& [k, v] = m_constants[param];
+                                if (k != type) {
+                                    throw std::runtime_error(
+                                        std::format(
+                                            "constant <T = {}> \"{}\"'s type mismatch. (expected \"{}\", found \"{}\")",
+                                            type, param, type, k
+                                        )
+                                    );
+                                }
+
+                                result.append(v);
+                            };
+
+                            if (name == "const<int>") { helperFn("int"); }
+                            else if (name == "const<float>") { helperFn("float"); }
+                            else {
+                                throw std::runtime_error(
+                                    "invalid const-macro syntax! (usage: \"!#[const<T>(\"CONST_NAME\")]\", where T = [ int | float ])"
+                                );
+                            }
                         }
                         else {
                             for (auto& macro : std::vector<std::string> { "version", "vertex", "geometory", "fragment" }) {
@@ -277,12 +313,13 @@ namespace {
         std::stringstream m_sourceContent {};
         std::filesystem::path m_baseDirectory {};
         std::filesystem::path m_entryFilePath {};
+        std::unordered_map<std::string, std::pair<std::string, std::string>>& m_constants;
 
         std::vector<std::filesystem::path> m_blockFileStack {};
 
         std::regex m_macroRe { R"(^\s*#![\S\s]*$)" }; 
         std::regex m_hintMacroRe { R"(^\s*#!\[\s*(\w+)\s*\]$)" };
-        std::regex m_declMacroRe { R"(^\s*#!\[\s*(\w+)\s*\(\s*\"([\w\s\.\\//:]*)\"\s*\)\s*\]$)"};
+        std::regex m_declMacroRe { R"(^\s*#!\[\s*([\w<>]+)\s*\(\s*\"([\w\s\.\\//:]*)\"\s*\)\s*\]$)"};
     };
 }
 
@@ -309,7 +346,7 @@ namespace cabin::core {
         std::string version, vertex, geometory, fragment;
 
         ShaderProcesser::Result processResult {};
-        processResult = ShaderProcesser(m_filePath).process();
+        processResult = ShaderProcesser(m_filePath, m_constants).process();
         
         version.swap(processResult.version);
         vertex.swap(processResult.vertex);

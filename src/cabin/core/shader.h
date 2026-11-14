@@ -7,7 +7,9 @@
 
 #pragma once
 #include <string>
+#include <format>
 #include <optional>
+#include <unordered_map>
 #include <glm/glm.hpp>
 #include <glad/gl.h>
 
@@ -30,12 +32,31 @@ namespace cabin::core {
             //! Add a macro definition to shader.
             Builder& addDefinition(const std::string& name, const std::string& value = "");
 
+            /** Set pre-declaration‌ constant's value for shader.
+             * 
+             *  @note Works with `#![const<T>("CONST_NAME")]`, 
+             *        where T = [ int | float ]
+             */
+            template <typename T>
+                requires std::is_same_v<T, int> || std::is_same_v<T, float>
+            Builder& setConstant(const std::string& name, const T& value) {
+                if constexpr (std::is_same_v<T, int>) {
+                    m_constants[name] = { "int", std::format("const int {} = int({});", name, value) };
+                }
+                else if constexpr (std::is_same_v<T, float>) {
+                    m_constants[name] = { "float", std::format("const float {} = float({});", name, value) };
+                }
+
+                return *this;
+            }
+
             Shader build();
 
         private:
             GLuint id;
             std::string m_filePath {};
             std::string m_definitions {};
+            std::unordered_map<std::string, std::pair<std::string, std::string>> m_constants {};
         };
 
     public:
