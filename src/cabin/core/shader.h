@@ -32,7 +32,7 @@ namespace cabin::core {
             //! Add a macro definition to shader.
             Builder& addDefinition(const std::string& name, const std::string& value = "");
 
-            /** Set pre-declaration‌ constant's value for shader.
+            /** Set pre-declaration constant's value for shader.
              * 
              *  @note Works with `#![const<T>("CONST_NAME")]`, 
              *        where T = [ int | float ]
