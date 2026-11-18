@@ -1,0 +1,30 @@
+/** Bloom Gauss Blur Utility 
+*   Shared Shader Functions Unit.
+* - ref: <https://zhuanlan.zhihu.com/p/525500877>
+*/
+
+#![use("consts.su")]
+
+float GaussWeight2D(float x, float y, float sigma) {
+    float sigma2 = pow(sigma, 2);
+    float a = -(x * x + y * y) / (2.0 * sigma2);
+    return pow(E, a) / (2.0 * PI * sigma2);
+}
+
+vec3 GaussNxN(sampler2D tex, vec2 uv, int n, vec2 stride, float sigma) {
+    vec3 color = vec3(0.0);
+    int r = n / 2;
+    float weight = 0.0;
+
+    for (int i = -r; i <= r; ++i) {
+        for (int j = -r; j <= r; ++j) {
+            float w = GaussWeight2D(i, j, sigma);
+            vec2 coord = uv + vec2(i, j) * stride;
+            color += texture(tex, coord).rgb * w;
+            weight += w;
+        }
+    }
+
+    color /= weight;
+    return color;
+}

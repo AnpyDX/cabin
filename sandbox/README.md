@@ -50,6 +50,22 @@ where you can learn:
 xmake run hello_pbr
 ```
 
-![hello_pbr_0](../showcase/hello_pbr_0.jpg)
-![hello_pbr_1](../showcase/hello_pbr_1.jpg)
-![hello_pbr_2](../showcase/hello_pbr_2.jpg)
+![hello_pbr](../showcase/hello_pbr.jpg)
+
+## Earth Sim
+
+A rendering demo of Earth that uses **Physical Atmospheric Scattering**, **Bloom**, and **PBR** rendering techniques.
+
+You can learn:
+
+1. Impl post-processing with `core::Framebuffer`.
+2. Use `#![const<T>("...")]` macro to define type-safe constants for shaders.
+3. Impl center-fixed camera with `GLFW` input APIs.
+
+To run `earth_sim`:
+
+```bash
+xmake run earth_sim
+```
+
+![earth_sim](../showcase/earth_sim.jpg)

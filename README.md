@@ -4,7 +4,9 @@
 
 ## Showcase
 
-![hello_pbr](showcase/hello_pbr_1.jpg)
+![showcase](showcase/earth_sim.jpg)
+
+Check [sandbox](sandbox) page to see more samples.
 
 ## Features
 
@@ -67,8 +69,8 @@ For the manual and more samples, please check [sandbox](sandbox) page.
 
 - `src`: Source code of cabin framework.
 - `sandbox`: Sample sandbox-apps.
-- `scripts`: Tool scripts.
-- `showcase`: Samples' pictures.
+- `scripts`: Helper scripts.
+- `showcase`: Samples' screenshots.
 
 ## Thirdparty
 
@@ -85,6 +87,7 @@ For the manual and more samples, please check [sandbox](sandbox) page.
 
 - **Roboto Mono**: <https://github.com/notofonts/latin-greek-cyrillic>
 - **Flight Helmet**: <https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/FlightHelmet>
+- **Earth-16k**: <https://sketchfab.com/3d-models/earth-16k-high-resolution-e2f01432233b4c0983583ba5066af83d>
 
 ## References
 
